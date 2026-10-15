@@ -1,0 +1,10 @@
+<input (input)="term.set($any($event.target).value)" placeholder="Search" />
+<!-- (event)="action": on every keystroke, stores the text in the "term" signal -->
+
+@for (p of filtered(); track p.id) {      <!-- repeats for each product; "track" = item identity -->
+  <a [routerLink]="['/product', p.id]">{{ p.title }}</a>
+  <app-product-card [name]="p.title" [price]="p.price" />
+  @if (p.stock === 0) { <span>Out of stock</span> } @else if (p.stock < 5) { <span>Only a few left</span> }
+} @empty {                                <!-- shown when the list is empty -->
+  <p>No products found.</p>
+}
