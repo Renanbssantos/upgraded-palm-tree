@@ -1,14 +1,18 @@
-import { Component, inject, input } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { switchMap } from 'rxjs';
-import { ProductService } from '../product.service';
+import { Component, input, linkedSignal, signal } from '@angular/core';
+import { httpResource } from '@angular/common/http';
+import { Product } from '../product.model';
+import { QtySelector } from '../qty-selector/qty-selector';
+import { ProductReviews } from '../product-reviews/product-reviews';
 
 @Component({
   selector: 'app-product-detail',
-  template: `<h2>{{ product()?.title }}</h2><p>{{ product()?.description }}</p>`,
+  imports: [QtySelector, ProductReviews],
+  templateUrl: './product-detail.html',
 })
 export class ProductDetail {
-  private service = inject(ProductService);
-  id = input.required<string>();   // automatically receives :id from the URL
-  product = toSignal(toObservable(this.id).pipe(switchMap((id) => this.service.byId(id))));
+  id = input.required<string>();
+  product = httpResource<Product>(() => `https://dummyjson.com/products/${this.id()}`);
+  selectedImage = linkedSignal(() => this.product.value()?.images?.[0]);
+  quantity = signal(1);
+  limit = signal<number | null>(null);
 }

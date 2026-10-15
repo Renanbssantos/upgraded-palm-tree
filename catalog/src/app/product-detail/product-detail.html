@@ -1,0 +1,25 @@
+@if (product.isLoading()) {
+  <p>Loading...</p>
+} @else if (product.error()) {
+  <p>Could not load the product.</p>
+  <button (click)="product.reload()">Try again</button>
+} @else {
+  <h2>{{ product.value()?.title }}</h2>
+  <img [src]="selectedImage()" />
+  @for (img of product.value()?.images; track img) {
+    <button (click)="selectedImage.set(img)">View</button>
+  }
+}
+<app-qty-selector [(qty)]="quantity" [max]="5" (limitReached)="limit.set($event)" />
+<p>Selected: {{ quantity() }}</p>
+@if (limit()) { <p>Limit of {{ limit() }} units</p> }
+<div style="height: 2000px"></div>
+@defer (on viewport) {
+  <app-product-reviews [productId]="id()" />
+} @placeholder {
+  <p>Reviews appear as you scroll down.</p>
+} @loading (minimum 300ms) {
+  <p>Loading reviews...</p>
+} @error {
+  <p>Could not load the reviews.</p>
+}

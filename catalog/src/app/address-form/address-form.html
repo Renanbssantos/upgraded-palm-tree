@@ -1,0 +1,12 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <input formControlName="email" />
+  @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+    <small>Invalid e-mail</small>
+  }
+  <input formControlName="zip" />
+  @if (form.controls.zip.touched && form.controls.zip.invalid) {
+    <small>Enter a valid ZIP code</small>
+  }
+  <input formControlName="number" />
+  <button type="submit" [disabled]="form.invalid">Save</button>
+</form>
