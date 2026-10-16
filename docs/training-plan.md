@@ -20,7 +20,9 @@ In 10 weeks, each team member should be able to build, customize and ship a feat
 **Tested on October 15, 2026** (Node 22.22, npm 11, Angular CLI 21.2):
 
 - **Phases 1 and 2:** every snippet and exercise solution was built, run in a headless browser and tested; the fixes found are already in the steps (npm bug, service naming, `Product` model, zoneless experiment, `@defer` with `--no-hmr`, SSR render mode and allowed hosts, generated specs).
-- **Phases 3 to 5:** every class, import path, config key, CMS/slot name and `ng add` flag was checked against the current Spartacus source on GitHub. They were **not** run against a real SAP Commerce backend; do a first pass in your project environment before rolling the plan out.
+- **Phases 3 and 4 (re-tested October 16, 2026):** every API call and every Phase 4 step and exercise was run end to end with Composable Storefront 221121.20.0 (libraries built from the `release/221121.20.x` source) against a mock SAP Commerce backend that imitates the OCC; the fixes found are already in the steps (`ng new` flag for the schematic, Windows style imports, test target, outlet position binding, layout breakpoints, storefront texts in other languages, SSR allowed hosts, CMS endpoint and CORS headers).
+- **Phase 5:** every class, import path, config key, CMS/slot name and `ng add` flag was checked against the current Spartacus source on GitHub.
+- None of it was run against a **real** SAP Commerce backend; do a first pass in your project environment before rolling the plan out.
 
 ## How to run the exercises
 
@@ -52,7 +54,7 @@ git add . && git commit -m "phase1-step4" # after each step
 | What you are running | Where | How | Where you see the result |
 | --- | --- | --- | --- |
 | Angular code (components, services, config) | Terminal in the project folder | `ng serve` (Phases 1–2) or `npm start` (Phases 4–5), and leave it running | Browser at `http://localhost:4200`; errors in the terminal and in the browser console (F12) |
-| Anything that depends on SSR | Terminal | `npm run build`, then the `serve:ssr` script from `package.json` | Browser at the port the terminal prints; right-click → "View page source"; server errors in the terminal |
+| Anything that depends on SSR | Terminal | `npm run build`, then the `serve:ssr` script from `package.json` with `NG_ALLOWED_HOSTS=localhost` (Phase 2, Step 8) | Browser at the port the terminal prints; right-click → "View page source"; server errors in the terminal |
 | Tests | A second terminal | `ng test` | Pass/fail list in the terminal |
 | API calls (`curl`) | Terminal, or Postman if you prefer clicking | Paste the command; in Postman, use Import → Raw text and paste the `curl` | JSON response in the terminal or in Postman's response panel |
 | Browser-only snippets (`fetch`) | Browser console (F12 → Console) | Paste and press Enter | The console itself |
@@ -111,7 +113,7 @@ Then add `CustomModule` to the `imports` array of `src/app/app.module.ts` (or, i
 | `No provider for HttpClient` | HTTP not switched on | Add `provideHttpClient()` to `app.config.ts` |
 | Changes don't show up | `ng serve` stopped, or the browser cached the page | Look at the terminal; restart it; hard reload with Ctrl+Shift+R |
 | `Port 4200 is already in use` | Another `ng serve` is running | Close it, or run `ng serve --port 4300` |
-| Blank storefront with red CORS errors | Backend doesn't allow `localhost:4200` | Phase 3, Step 7 |
+| Blank storefront with red CORS errors | Backend doesn't allow `localhost:4200`, or one of the storefront's headers | Phase 3, Step 7 |
 | `localStorage is not defined` (server terminal) | Browser-only code running during SSR | Phase 2, Step 8 |
 | Backoffice change missing from the API | Catalog not synchronized | Phase 3, Step 2 |
 
@@ -1272,6 +1274,8 @@ curl "$BASE/cms/pages?pageType=ContentPage&pageLabelOrId=homepage"
 
 Above is a simplified response with notes on the right (they don't exist in the real response). What matters: `template`, the `position` of each slot and the `typeCode` of each component. The storefront uses the `typeCode` to choose the Angular component.
 
+**The storefront's own call.** The 221121 storefront asks for pages on a user-scoped path: `$BASE/users/anonymous/cms/pages` (or `users/current/...` after login), and for the home page it sends no `pageLabelOrId` at all. The response has the same structure; it also brings the header and footer slots (`SiteLogo`, `SearchBox`, `MiniCart`, `NavigationBar`, `Footer`...), which every page shares through its template. When you look for CMS calls in DevTools → Network, filter by `cms/pages`, not by the full path above.
+
 **How to run it.**
 
 1. Run the `curl` and pipe it to a file to read calmly: `curl "$BASE/cms/pages?pageType=ContentPage&pageLabelOrId=homepage" > home.json`, then open `home.json` in VS Code and use **Format Document** (Shift+Alt+F).
@@ -1302,9 +1306,13 @@ Done when: you redraw this phase's diagram for the home page with the real templ
 ```properties
 # SAP Commerce local.properties: the OCC's "guest list"
 corsfilter.commercewebservices.allowedOrigins=http://localhost:4200 https://localhost:4200
+# the storefront also sends its own headers (e.g. x-anonymous-consents): they must be allowed
+corsfilter.commercewebservices.allowedHeaders=origin content-type accept authorization cache-control x-anonymous-consents x-profile-tag-debug x-consent-reference occ-personalization-id occ-personalization-time
+# and the ones the storefront reads from the responses must be exposed
+corsfilter.commercewebservices.exposedHeaders=x-anonymous-consents occ-personalization-id occ-personalization-time
 ```
 
-On CCv2, this setting lives in the environment properties; ask whoever manages the backend.
+On CCv2, these settings live in the environment properties; ask whoever manages the backend. The origin is the most common gap, but a missing header gives a blank storefront just the same.
 
 **How to run it.**
 
@@ -1322,6 +1330,7 @@ On CCv2, this setting lives in the environment properties; ask whoever manages t
 
 - Trying to "fix" CORS in Angular code: the fix is always on the server.
 - Allowing `http` but browsing over `https` (or the other way around): the origin includes protocol and port.
+- Allowing the origin but not the headers: the console says `Request header field x-anonymous-consents is not allowed by Access-Control-Allow-Headers in preflight response`. Add the header to `allowedHeaders`.
 
 Documentation: [Composable Storefront on the SAP Help Portal](https://help.sap.com/docs/SAP_COMMERCE_COMPOSABLE_STOREFRONT), page "Cross-Origin Resource Sharing (CORS)"
 
@@ -1399,8 +1408,10 @@ Done when: `npm view @spartacus/core versions` returns the list of versions.
 **In practice.**
 
 ```bash
-# 1. empty Angular app (check the docs for whether your version needs --standalone=false)
-ng new mystore --style=scss --ssr=false
+# 1. empty Angular app
+#    --file-name-style-guide=2016: the schematic looks for app.component.ts,
+#    and Angular 21 would otherwise name it app.ts
+ng new mystore --style=scss --ssr=false --file-name-style-guide=2016
 cd mystore
 
 # 2. install and configure the storefront
@@ -1424,8 +1435,10 @@ The schematic asks interactive questions about which features to install (cart, 
 
 1. From `training/`, run `ng new mystore ...`, then copy your `.npmrc` from Step 1 into `mystore/`.
 2. Inside `mystore/`, run the `ng add` command with your backend address and the exact version from Step 1. Answer the prompts with Enter.
-3. Run `npm start` and open `http://localhost:4200`. The first load can take a minute.
-4. Commit right away (`git add . && git commit -m "phase4-install"`): this clean install is your safe point to return to.
+3. **Fix the test setup** the schematic leaves behind (otherwise `ng test` fails in Phase 5): open `angular.json`, find `projects → mystore → architect → test` and delete its `stylePreprocessorOptions`, `styles` and `assets` (they are Karma options; Angular 21 tests run on Vitest). Also delete `src/app/app.component.spec.ts`: it looks for the `<h1>` of the page you just replaced.
+4. **Windows only:** if the build says `Can't find stylesheet to import` for `'..\..\styles-config'`, open the files in `src/styles/spartacus/` and change the backslashes in that first `@import` to `/` (`'../../styles-config'`). On macOS, Linux and WSL this doesn't happen.
+5. Run `npm start` and open `http://localhost:4200`. The first load can take a minute.
+6. Commit right away (`git add . && git commit -m "phase4-install"`): this clean install is your safe point to return to.
 
 **Exercise.** After installing, open `package.json` and list which `@spartacus/*` packages were added.
 
@@ -1435,7 +1448,9 @@ The schematic asks interactive questions about which features to install (cart, 
 **Common mistakes.**
 
 - Schematic version that doesn't match the supported Angular version: follow the compatibility matrix.
-- Blank screen with CORS errors in the console: the backend hasn't allowed `localhost:4200` (Phase 3, Step 7).
+- `Could not find app.component.ts file. Please re-create your application`: the app was created without `--file-name-style-guide=2016`. Delete the folder and run `ng new` again with the flag.
+- `ng test` says `Data path "" must NOT have additional properties(stylePreprocessorOptions)`: item 3 of "How to run it" was skipped.
+- Blank screen with CORS errors in the console: the backend hasn't allowed `localhost:4200` or one of the storefront's headers (Phase 3, Step 7).
 
 Documentation: [Schematics (concepts and flags)](https://sap.github.io/spartacus-docs/schematics/) · [Help Portal](https://help.sap.com/docs/SAP_COMMERCE_COMPOSABLE_STOREFRONT), pages "Building the Composable Storefront From Libraries" and "Schematics"
 
@@ -1462,6 +1477,8 @@ provideConfig(<SiteContextConfig>{
 }),
 ```
 
+The generated file has no `urlParameters` line: without it the context is not in the URL, and you switch language with the selector in the header. Add the line if you want to see it in the URL.
+
 Also open `spartacus-features.module.ts`: each import there is a feature (cart, checkout, user), loaded on demand.
 
 **How to run it.**
@@ -1474,7 +1491,7 @@ Also open `spartacus-features.module.ts`: each import there is a feature (cart, 
 **Exercise.** Add German (`de`) and make it the default. See what changes in the URL and in the texts.
 
 - *Hint:* the order of the array matters.
-- *Solution:* `language: ['de', 'en']`. The URL now has `/de/` and the storefront texts appear in German (the language must be active on the base site, as you saw in Phase 3, Step 1).
+- *Solution:* `language: ['de', 'en']`, and in the `I18nConfig` block of the same file register the German texts next to the English ones: `resources: { en: translationsEn, de: translationsDe }` (both from `@spartacus/assets`). The language must also be active on the base site, as you saw in Phase 3, Step 1. With `urlParameters`, the URL now has `/de/`. Without the German resources, the selector says German but the texts stay in English.
 
 **Common mistakes.**
 
@@ -1516,7 +1533,7 @@ Put the badge on screen with an outlet (Step 6) or inside a component you have a
 
 1. Create the custom module from "How to run the exercises" (`src/app/custom/custom.module.ts`) if you haven't yet, and import it in `app.module.ts`.
 2. Generate the badge: `ng generate component custom/cart-badge` and paste the snippet into `cart-badge.ts`.
-3. Show it temporarily at the top of `app.component.html`: `<app-cart-badge />` (Step 6 moves it to the right place). If the app uses NgModules, add `CartBadge` to `CustomModule`'s `imports` and `exports`.
+3. Show it temporarily at the top of `app.component.html`: `<app-cart-badge />` (Step 6 moves it to the right place). The generated root component (`App` in `app.component.ts`) is standalone even though the storefront itself is configured through `app.module.ts`, so add `CartBadge` to the `imports` of `App`.
 4. Add a product to the cart in the storefront and watch the badge number change.
 
 **Exercise.** Also show the cart's formatted total value.
@@ -1604,12 +1621,26 @@ Done when: the PDP shows your summary with the badge, and the rest of the page s
 
 **In practice.**
 
+```typescript
+// app.component.ts — the root component is standalone: import the directive and expose the enum
+import { OutletPosition, OutletRefDirective, StorefrontComponent } from '@spartacus/storefront';
+
+@Component({
+  selector: 'app-root',
+  imports: [StorefrontComponent, OutletRefDirective],
+  templateUrl: './app.component.html',
+})
+export class App {
+  // cxOutletPos expects the OutletPosition enum (BEFORE, AFTER, REPLACE), not a plain string
+  protected readonly OutletPosition = OutletPosition;
+}
+```
+
 ```html
 <!-- app.component.html (or another component that is always loaded) -->
-<!-- import OutletRefDirective (or OutletRefModule) from @spartacus/storefront -->
 
-<!-- "before": shows up BEFORE the add-to-cart component -->
-<ng-template cxOutletRef="ProductAddToCartComponent" cxOutletPos="before">
+<!-- BEFORE: shows up before the add-to-cart component -->
+<ng-template cxOutletRef="ProductAddToCartComponent" [cxOutletPos]="OutletPosition.BEFORE">
   <p class="shipping">Free shipping over $200</p>
 </ng-template>
 
@@ -1623,20 +1654,21 @@ To find socket names, inspect the page in the browser: `cx-page-slot` elements c
 
 **How to run it.**
 
-1. Open `src/app/app.component.html`: it usually contains only `<cx-storefront></cx-storefront>`. Paste the `ng-template` blocks **below** it.
-2. Import `OutletRefModule` from `@spartacus/storefront` in `app.module.ts` (or `OutletRefDirective` in a standalone root component).
+1. Open `src/app/app.component.html`: it usually contains only `<cx-storefront />`. Paste the `ng-template` blocks **below** it.
+2. In `src/app/app.component.ts`, add `OutletRefDirective` to the `imports` and the `OutletPosition` field, as in the TypeScript snippet. (In an app whose root component is declared in an NgModule, import `OutletRefModule` in that module instead.)
 3. Open a product page and look next to the "Add to cart" button.
 4. To discover outlet names, right-click any area → Inspect, and look at the `cx-*` tag or the slot class on the nearest `cx-page-slot`.
 
 **Exercise.** Show the shipping message *after* the button instead of before. Then add the `CartBadge` from Step 4 next to the mini cart.
 
 - *Hint:* change `cxOutletPos`. The mini cart is the `MiniCartComponent`.
-- *Solution:* `cxOutletPos="after"` on the first; `<ng-template cxOutletRef="MiniCartComponent" cxOutletPos="after"><app-cart-badge /></ng-template>` for the second.
+- *Solution:* `[cxOutletPos]="OutletPosition.AFTER"` on the first; `<ng-template cxOutletRef="MiniCartComponent" [cxOutletPos]="OutletPosition.AFTER"><app-cart-badge /></ng-template>` for the second (with `CartBadge` in the `imports` of `App`).
 
 **Common mistakes.**
 
 - Placing the `ng-template` in a component that only shows on some pages: the outlet disappears on the others.
 - Using `replace` by accident (forgetting `cxOutletPos`) and "losing" a component.
+- Writing `cxOutletPos="after"`: the generated app uses strict template checking, so the build fails with `Type '"after"' is not assignable to type 'OutletPosition'`. Bind the enum: `[cxOutletPos]="OutletPosition.AFTER"`.
 
 Documentation: [SAP Learning video: Extending the Storefront with Outlets](https://learning.sap.com/videos/extending-the-sap-commerce-cloud-composable-storefront-with-outlets) · [Help Portal](https://help.sap.com/docs/SAP_COMMERCE_COMPOSABLE_STOREFRONT), page "Outlets"
 
@@ -1652,7 +1684,7 @@ Done when: the message shows after the button and the badge next to the mini car
 provideConfig(<LayoutConfig>{
   layoutSlots: {
     ProductDetailsPageTemplate: {                  // template name, as it comes from the CMS
-      // default (applies to every size without its own rule)
+      // default: used when neither this breakpoint nor a smaller one has its own rule
       slots: ['Summary', 'Tabs', 'UpSelling', 'CrossSelling', 'PlaceholderContentSlot'],
       // on large screens, recommendations move up right after the summary
       lg: { slots: ['Summary', 'UpSelling', 'CrossSelling', 'Tabs', 'PlaceholderContentSlot'] },
@@ -1661,26 +1693,29 @@ provideConfig(<LayoutConfig>{
 }),
 ```
 
+**How a breakpoint picks its rule.** The storefront first looks for a rule for the current breakpoint; if there is none, it takes the rule of the closest **smaller** breakpoint that has one, and only then the default `slots`. So an `xs` rule also applies to `sm` and `md`, unless they have their own.
+
 **How to run it.**
 
 1. Paste the `provideConfig(<LayoutConfig>{...})` into `CustomModule`'s `providers` and save.
 2. Open a product page on a wide window and note the order of the sections.
-3. Open DevTools → toggle the device toolbar (Ctrl+Shift+M) → pick a phone size and reload: the order follows the `xs`/default rule.
-4. Compare the slot names with the `cms/pages` response for a product page if something disappears.
+3. Open DevTools → toggle the device toolbar (Ctrl+Shift+M) → pick a phone size and reload, then a tablet size (768 px wide) and reload again.
+4. Compare the slot names with the `cms/pages` response for a product page if something disappears. A quick check in the console: `[...document.querySelectorAll('cx-page-layout > cx-page-slot')].map(s => s.getAttribute('position'))`.
 
 **Exercise.** Hide the `CrossSelling` slot on phones only.
 
-- *Hint:* a slot left out of the list isn't rendered.
-- *Solution:* add `xs: { slots: ['Summary', 'Tabs', 'UpSelling', 'PlaceholderContentSlot'] }`.
+- *Hint:* a slot left out of the list isn't rendered. Then check a tablet too: remember how a breakpoint picks its rule.
+- *Solution:* add `xs: { slots: ['Summary', 'Tabs', 'UpSelling', 'PlaceholderContentSlot'] }` **and** `md: { slots: ['Summary', 'Tabs', 'UpSelling', 'CrossSelling', 'PlaceholderContentSlot'] }`. Without the `md` rule, tablets inherit the `xs` list and lose CrossSelling too.
 
 **Common mistakes.**
 
 - Leaving a slot out of the list: its content disappears silently. Cross-check with the `cms/pages` response.
+- Expecting a breakpoint without its own rule to use the default `slots`: it uses the closest smaller rule first.
 - Using layout to hide content that should be removed in the CMS: the data is still loaded.
 
 Documentation: [Page Layout (concepts and examples)](https://sap.github.io/spartacus-docs/page-layout/) · [Help Portal](https://help.sap.com/docs/SAP_COMMERCE_COMPOSABLE_STOREFRONT), page "Page Layout"
 
-Done when: the order changes on desktop, CrossSelling disappears on phones and everything else stays the same.
+Done when: the order changes on desktop, CrossSelling disappears on phones (but not on tablets) and everything else stays the same.
 
 #### Step 8 — Styles and theme
 
@@ -1767,6 +1802,7 @@ provideConfig(<I18nConfig>{
 **Common mistakes.**
 
 - The screen shows the key instead of the text (e.g. `shipping.freeAbove`): the key is missing from `chunks`, or the active language has no text for it.
+- After switching to German, some storefront labels (e.g. "Sign In / Register") stay in English: each feature module generated by `ng add` (`src/app/spartacus/features/...`) registers only its English texts. To translate them, add the matching German resources in each module (e.g. `userAccountTranslationsDe` next to `userAccountTranslationsEn`).
 - Concatenating text in code (`'Free shipping over ' + value`): impossible to translate. Use parameters.
 
 Documentation: [Help Portal](https://help.sap.com/docs/SAP_COMMERCE_COMPOSABLE_STOREFRONT), page "Internationalization (i18n)"
@@ -1851,12 +1887,12 @@ Done when: the custom summary shows the warranty and the rest of the PDP is stil
 **In practice.**
 
 ```bash
-npm run build       # builds the browser and server bundles
-npm run serve:ssr   # the script name may vary; check package.json
+npm run build                                          # builds the browser and server bundles
+NG_ALLOWED_HOSTS=localhost npm run serve:ssr:mystore   # allowed hosts, as in Phase 2, Step 8
 ```
 
 ```typescript
-// server.ts (excerpt; the file generated for your version may differ)
+// src/server.ts (excerpt; the file generated for your version may differ)
 const ngExpressEngine = NgExpressEngineDecorator.get(engine, {
   timeout: 3000,   // after 3 s without finishing, responds with CSR
   cache: false,    // in production, caching usually lives in a layer in front (CDN)
@@ -1866,8 +1902,8 @@ const ngExpressEngine = NgExpressEngineDecorator.get(engine, {
 **How to run it.**
 
 1. Stop `npm start` (Ctrl+C) and run `npm run build`.
-2. Find the SSR script in `package.json` (e.g. `serve:ssr:mystore`) and run it with `npm run <name>`.
-3. Open the address the terminal prints, go to a product page, then right-click → **View page source** and search (Ctrl+F) for the product name.
+2. Find the SSR script in `package.json` (e.g. `serve:ssr:mystore`) and run it allowing `localhost` as host: `NG_ALLOWED_HOSTS=localhost npm run serve:ssr:mystore` (on Windows PowerShell: `$env:NG_ALLOWED_HOSTS="localhost"; npm run serve:ssr:mystore`). The storefront's `server.ts` also has an `SSR_ALLOWED_ORIGINS` check; that one is optional and does not replace `NG_ALLOWED_HOSTS`.
+3. Open the address the terminal prints (port 4000 by default), go to a product page, then right-click → **View page source** and search (Ctrl+F) for the product name.
 4. Watch the terminal while you browse: SSR errors and timeouts appear there.
 
 **Exercise.** Review every component you created in this phase looking for browser-only code. Then check the HTML generated by the server.
@@ -1878,6 +1914,7 @@ const ngExpressEngine = NgExpressEngineDecorator.get(engine, {
 **Common mistakes.**
 
 - `baseUrl` pointing to a backend the SSR server can't reach (internal network, invalid certificate): rendering hits the timeout and everything falls back to CSR without you noticing.
+- Starting the server without `NG_ALLOWED_HOSTS`: the terminal prints `URL with hostname "localhost" is not allowed` and every page falls back to CSR, so "View page source" shows an almost empty page.
 - Using `setInterval` or long timers in components: the server waits for the app to "stabilize" and rendering is delayed.
 
 Documentation: [SSR in Spartacus](https://sap.github.io/spartacus-docs/server-side-rendering-in-spartacus/) · [SSR optimization](https://sap.github.io/spartacus-docs/server-side-rendering-optimization/) · [Help Portal](https://help.sap.com/docs/SAP_COMMERCE_COMPOSABLE_STOREFRONT), page "Server-Side Rendering Optimization"
