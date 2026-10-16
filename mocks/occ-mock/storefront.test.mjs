@@ -65,6 +65,16 @@ test('product references for UpSelling / CrossSelling', async () => {
   assert.ok(body.references.every((r) => r.target.code !== '872912'));
 });
 
+test('Phase 5: /compare page with the CMSFlexComponent, and products with technical attributes', async () => {
+  const page = (await get(`${BASE}/users/anonymous/cms/pages?pageType=ContentPage&pageLabelOrId=%2Fcompare`)).body;
+  assert.equal(page.template, 'ContentPage1Template');
+  const comp = page.contentSlots.contentSlot.find((s) => s.position === 'Section2A').components.component[0];
+  assert.deepEqual([comp.typeCode, comp.flexType], ['CMSFlexComponent', 'ProductComparisonComponent']);
+  // ProductScope.ATTRIBUTES = products/{code}?fields=classifications
+  const attrs = (await get(`${BASE}/products/1934793?fields=classifications`)).body;
+  assert.ok(attrs.classifications[0].features.length >= 3);
+});
+
 test('media placeholders, also with the double slash the storefront sends', async () => {
   const r = await get(`${host}//medias/logo.svg`);
   assert.equal(r.status, 200);

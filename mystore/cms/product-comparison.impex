@@ -1,0 +1,12 @@
+# Phase 5, Step 2: the CMS part of the comparison tool, for a real SAP Commerce backend.
+# Import in HAC (Console > ImpEx Import), then create the ContentPage with label /compare
+# in Backoffice or SmartEdit, put this component in one of its slots and synchronize the
+# content catalog. The mock backend (mocks/occ-mock/data.mjs) already has both.
+
+# variables: which content catalog and version (Staged) to write to
+$contentCatalog=electronics-spaContentCatalog
+$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
+
+# creates (or updates) the wildcard component; flexType = the name used in the front-end mapping
+INSERT_UPDATE CMSFlexComponent;$contentCV[unique=true];uid[unique=true];name;flexType
+;;ProductComparisonFlexComponent;Product Comparison;ProductComparisonComponent

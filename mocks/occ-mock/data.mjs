@@ -65,16 +65,33 @@ const product = (code, name, price, extra = {}) => ({
     {
       code: 'specs',
       name: 'Technical details',
-      features: [{ code: 'weight', name: 'Weight', featureValues: [{ value: extra.weight ?? '450 g' }] }],
+      // features: [name, value]; a product may lack some of them (the comparison shows "—")
+      features: Object.entries({ Weight: extra.weight ?? '450 g', ...extra.specs }).map(([name, value]) => ({
+        code: name.toLowerCase().replace(/\W+/g, '-'),
+        name,
+        featureValues: [{ value }],
+      })),
     },
   ],
 });
 
 export const products = [
-  product('300938', 'Photosmart E317 Digital Camera', 114.12, { manufacturer: 'HP', weight: '120 g' }),
-  product('1934793', 'PowerShot A480', 264.69, { manufacturer: 'Canon', rating: 4.6, warrantyYears: 2 }),
-  product('872912', 'EOS 450D Body', 549.0, { manufacturer: 'Canon', weight: '475 g', warrantyYears: 3 }),
-  product('779841', 'Camcorder HDR-CX105E', 799.5, { manufacturer: 'Sony', category: 'camcorders', stock: 0 }),
+  product('300938', 'Photosmart E317 Digital Camera', 114.12, {
+    manufacturer: 'HP', weight: '120 g',
+    specs: { Resolution: '5 MP', 'Optical zoom': '3x', 'Display size': '1.8 in' },
+  }),
+  product('1934793', 'PowerShot A480', 264.69, {
+    manufacturer: 'Canon', rating: 4.6, warrantyYears: 2,
+    specs: { Resolution: '10 MP', 'Optical zoom': '3.3x', 'Display size': '2.5 in', 'Image stabilizer': 'No' },
+  }),
+  product('872912', 'EOS 450D Body', 549.0, {
+    manufacturer: 'Canon', weight: '475 g', warrantyYears: 3,
+    specs: { Resolution: '12.2 MP', 'Display size': '3.0 in', 'Image stabilizer': 'Lens-based' },
+  }),
+  product('779841', 'Camcorder HDR-CX105E', 799.5, {
+    manufacturer: 'Sony', category: 'camcorders', stock: 0,
+    specs: { Resolution: '2.3 MP', 'Optical zoom': '10x', 'Image stabilizer': 'Optical' },
+  }),
 ];
 
 // ---- Content catalog -------------------------------------------------------
@@ -149,6 +166,8 @@ const componentList = [
   // search results page
   { uid: 'ProductRefinementComponent', typeCode: 'ProductRefinementComponent', name: 'Refinements' },
   { uid: 'SearchResultsListComponent', typeCode: 'SearchResultsListComponent', name: 'Search Results' },
+  // Phase 5: the comparison page. CMSFlexComponent is the "wildcard": flexType names the Angular component
+  { uid: 'ProductComparisonFlexComponent', typeCode: 'CMSFlexComponent', flexType: 'ProductComparisonComponent', name: 'Product Comparison' },
   // not-found page
   { uid: 'NotFoundParagraph', typeCode: 'CMSParagraphComponent', name: 'Not found', content: '<h2>Page not found</h2><p>This page does not exist in the mock content catalog.</p>' },
 ];
@@ -194,6 +213,11 @@ export const cmsPages = {
     uid: 'search', label: 'search', name: 'Search Results Page', title: 'Search Results',
     typeCode: 'ContentPage', template: 'SearchResultsListPageTemplate',
     slots: { ProductLeftRefinements: ['ProductRefinementComponent'], SearchResultsListSlot: ['SearchResultsListComponent'] },
+  },
+  compare: {
+    uid: 'compare', label: '/compare', name: 'Compare Products', title: 'Compare products',
+    typeCode: 'ContentPage', template: 'ContentPage1Template',
+    slots: { Section2A: ['ProductComparisonFlexComponent'] },
   },
   notFound: {
     uid: 'notFound', label: '/not-found', name: 'Not Found Page', title: 'Not Found',
