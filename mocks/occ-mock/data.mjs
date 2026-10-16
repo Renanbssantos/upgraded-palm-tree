@@ -57,6 +57,9 @@ const product = (code, name, price, extra = {}) => ({
   images: [image(code, 300), image(code, 96)],
   categories: [{ code: extra.category ?? 'cameras', name: extra.category ?? 'cameras' }],
   averageRating: extra.rating ?? 4.2,
+  purchasable: true,
+  // custom attribute for Phase 4, Step 10: only returned when requested by name in "fields"
+  ...(extra.warrantyYears ? { warrantyYears: extra.warrantyYears } : {}),
   numberOfReviews: 12,
   classifications: [
     {
@@ -69,8 +72,8 @@ const product = (code, name, price, extra = {}) => ({
 
 export const products = [
   product('300938', 'Photosmart E317 Digital Camera', 114.12, { manufacturer: 'HP', weight: '120 g' }),
-  product('1934793', 'PowerShot A480', 264.69, { manufacturer: 'Canon', rating: 4.6 }),
-  product('872912', 'EOS 450D Body', 549.0, { manufacturer: 'Canon', weight: '475 g' }),
+  product('1934793', 'PowerShot A480', 264.69, { manufacturer: 'Canon', rating: 4.6, warrantyYears: 2 }),
+  product('872912', 'EOS 450D Body', 549.0, { manufacturer: 'Canon', weight: '475 g', warrantyYears: 3 }),
   product('779841', 'Camcorder HDR-CX105E', 799.5, { manufacturer: 'Sony', category: 'camcorders', stock: 0 }),
 ];
 
@@ -141,6 +144,8 @@ const componentList = [
   { uid: 'ProductDetailsTabComponent', typeCode: 'CMSFlexComponent', flexType: 'ProductDetailsTabComponent', name: 'Product Details' },
   { uid: 'ProductSpecsTabComponent', typeCode: 'CMSFlexComponent', flexType: 'ProductSpecsTabComponent', name: 'Specs' },
   { uid: 'ProductReviewsTabComponent', typeCode: 'CMSFlexComponent', flexType: 'ProductReviewsTabComponent', name: 'Reviews' },
+  { uid: 'Similar', typeCode: 'ProductReferencesComponent', name: 'Similar products', title: 'You may also like', productReferenceTypes: 'SIMILAR', displayProductTitles: 'true', displayProductPrices: 'true', maximumNumberProducts: '10' },
+  { uid: 'Accessories', typeCode: 'ProductReferencesComponent', name: 'Accessories', title: 'Accessories', productReferenceTypes: 'ACCESSORIES', displayProductTitles: 'true', displayProductPrices: 'true', maximumNumberProducts: '10' },
   // search results page
   { uid: 'ProductRefinementComponent', typeCode: 'ProductRefinementComponent', name: 'Refinements' },
   { uid: 'SearchResultsListComponent', typeCode: 'SearchResultsListComponent', name: 'Search Results' },
@@ -180,6 +185,8 @@ export const cmsPages = {
     typeCode: 'ProductPage', template: 'ProductDetailsPageTemplate',
     slots: {
       Summary: ['ProductImagesComponent', 'ProductIntroComponent', 'ProductSummaryComponent', 'AddToCart'],
+      UpSelling: ['Similar'],
+      CrossSelling: ['Accessories'],
       Tabs: ['TabPanelContainer'],
     },
   },

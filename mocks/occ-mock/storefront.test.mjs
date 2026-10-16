@@ -50,6 +50,21 @@ test('product carousel filters, nested field levels and suggestions', async () =
   assert.equal((await get(`${BASE}/products/suggestions?term=power&max=5`)).body.suggestions[0].value, 'PowerShot A480');
 });
 
+test('custom attribute only comes back when requested by name (Phase 4, Step 10)', async () => {
+  const plain = (await get(`${BASE}/products/1934793?fields=DEFAULT,averageRating,images(FULL)`)).body;
+  assert.equal(plain.warrantyYears, undefined);
+  assert.ok(plain.price && plain.images[0].url, 'DEFAULT level fields are still there');
+  const withField = (await get(`${BASE}/products/1934793?fields=DEFAULT,warrantyYears`)).body;
+  assert.equal(withField.warrantyYears, 2);
+});
+
+test('product references for UpSelling / CrossSelling', async () => {
+  const { body } = await get(`${BASE}/products/872912/references?fields=DEFAULT,references(target(images(FULL)))`);
+  const types = new Set(body.references.map((r) => r.referenceType));
+  assert.deepEqual([...types].sort(), ['ACCESSORIES', 'SIMILAR']);
+  assert.ok(body.references.every((r) => r.target.code !== '872912'));
+});
+
 test('media placeholders, also with the double slash the storefront sends', async () => {
   const r = await get(`${host}//medias/logo.svg`);
   assert.equal(r.status, 200);

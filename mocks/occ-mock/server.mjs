@@ -11,7 +11,7 @@ const clone = (o) => structuredClone(o);
 // ---- fields parameter: BASIC / DEFAULT / FULL or a projection like "code,price(formattedValue)" ----
 const LEVELS = {
   BASIC: ['code', 'name', 'url'],
-  DEFAULT: ['code', 'name', 'url', 'summary', 'price', 'stock', 'images', 'averageRating'],
+  DEFAULT: ['code', 'name', 'url', 'summary', 'description', 'purchasable', 'price', 'stock', 'images', 'averageRating'],
 };
 
 function parseFields(spec) {
@@ -50,8 +50,16 @@ function pick(value, tree) {
 
 function project(value, fields = 'DEFAULT') {
   if (fields === 'FULL') return value;
-  if (LEVELS[fields]) return pick(value, Object.fromEntries(LEVELS[fields].map((f) => [f, true])));
-  return pick(value, parseFields(fields));
+  const tree = LEVELS[fields] ? {} : parseFields(fields);
+  if (tree.FULL) return value;
+  // "DEFAULT,foo,bar(baz)" = the DEFAULT level plus the listed fields (a field like
+  // warrantyYears only comes back when it is requested by name, as in the real OCC)
+  for (const level of Object.keys(LEVELS)) {
+    if (fields !== level && !tree[level]) continue;
+    delete tree[level];
+    for (const f of LEVELS[level]) tree[f] ??= true;
+  }
+  return pick(value, tree);
 }
 
 const money = (value) => ({
@@ -276,8 +284,15 @@ export function createMockServer({ allowedOrigins = ['http://localhost:4200', 'h
       const names = state.online.products.map((p) => p.name).filter((n) => term && n.toLowerCase().includes(term));
       return send(res, 200, { suggestions: names.slice(0, Number(q.get('max') ?? 5)).map((value) => ({ value })) });
     }
-    if (req.method === 'GET' && (r = /^products\/([^/]+)\/(reviews|references)$/.exec(rest))) {
-      return send(res, 200, r[2] === 'reviews' ? { reviews: [] } : { references: [] });
+    if (req.method === 'GET' && (r = /^products\/([^/]+)\/reviews$/.exec(rest))) return send(res, 200, { reviews: [] });
+    if (req.method === 'GET' && (r = /^products\/([^/]+)\/references$/.exec(rest))) {
+      // every other product is a SIMILAR reference; the cheaper ones are also ACCESSORIES
+      const others = state.online.products.filter((p) => p.code !== r[1]);
+      const references = [
+        ...others.map((p) => ({ referenceType: 'SIMILAR', preselected: false, target: p })),
+        ...others.filter((p) => p.price.value < 300).map((p) => ({ referenceType: 'ACCESSORIES', preselected: false, target: p })),
+      ].filter((ref) => !q.get('referenceType') || ref.referenceType === q.get('referenceType'));
+      return send(res, 200, { references });
     }
     if (req.method === 'GET' && (r = /^products\/([^/]+)$/.exec(rest))) {
       const p = state.online.products.find((x) => x.code === r[1]);
@@ -338,7 +353,9 @@ export function createMockServer({ allowedOrigins = ['http://localhost:4200', 'h
       }
       if ((c = /^carts\/([^/]+)(?:\/entries(?:\/(\d+))?)?$/.exec(sub))) {
         const cart = findCart(owner, c[1]);
-        if (!cart) return ocError(res, 400, 'CartError', `Cart not found.`);
+        // same shape as the real OCC, so the storefront drops the stale cart silently
+        // (e.g. after the mock restarts and forgets its in-memory carts)
+        if (!cart) return send(res, 400, { errors: [{ type: 'CartError', message: 'Cart not found.', reason: 'notFound', subjectType: 'cart', subject: c[1] }] });
         const hasEntries = sub.includes('/entries');
         if (!hasEntries && req.method === 'GET') return send(res, 200, cartView(cart, fields));
         if (hasEntries && req.method === 'POST' && c[2] === undefined) {

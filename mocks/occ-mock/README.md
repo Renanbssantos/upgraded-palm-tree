@@ -20,6 +20,8 @@ Every request is logged as `<status> <method> <url>`; a `404 ... No handler` lin
 | `GET /occ/v2/electronics-spa/[users/{userId}/]cms/pages` | Home (`LandingPage2Template`), product page (`ProductDetailsPageTemplate`, for `pageType=ProductPage&code=...`), search and `/not-found`. Header and footer slots are shared by every page |
 | `GET .../cms/components?componentIds=...` | Components referenced by navigation nodes and tab containers |
 | `GET .../languages`, `.../currencies`, `.../products/suggestions`, `.../products/{code}/reviews` | What the header, search box and product tabs ask for |
+| `GET .../products/{code}/references` | SIMILAR (UpSelling slot) and ACCESSORIES (CrossSelling slot) references |
+| `fields=DEFAULT,warrantyYears` | `DEFAULT` is a fixed set of fields; anything else, like the custom attribute `warrantyYears` (Phase 4, Step 10), only comes back when requested by name |
 | `GET /medias/<name>` | A generated SVG placeholder showing `<name>` (any extension) |
 | CORS | Only `http://localhost:4200` and `https://localhost:4200` (override with `ALLOWED_ORIGINS`), with the storefront headers (`x-anonymous-consents`...) allowed |
 
