@@ -5,8 +5,10 @@ A zero-dependency Node 22 server that imitates the parts of SAP Commerce (OCC v2
 ```bash
 cd mocks/occ-mock
 npm start        # http://localhost:9002
-npm test         # walks through the Phase 3 checkpoint (7 tests)
+npm test         # Phase 3 checkpoint (7 tests) + what the storefront needs (7 tests)
 ```
+
+Every request is logged as `<status> <method> <url>`; a `404 ... No handler` line means the storefront asked for something the mock does not have yet. Set `QUIET=1` to turn the log off.
 
 | URL | Behaves like |
 | --- | --- |
@@ -15,8 +17,13 @@ npm test         # walks through the Phase 3 checkpoint (7 tests)
 | `POST /authorizationserver/oauth/token` | Password grant with `mobile_android` / `secret`, user `customer@example.com` (the mock's seed customer, see `data.mjs`) |
 | `GET /occ/v2/electronics-spa/users/current` | 401 without a valid Bearer token |
 | `/users/anonymous/carts[...]` | Create, add, change (`PATCH`) and remove (`DELETE`) entries; totals computed by the server |
-| `GET /occ/v2/electronics-spa/cms/pages` | Home page: template `LandingPage2Template`, slots, components with `typeCode` |
-| CORS | Only `http://localhost:4200` and `https://localhost:4200` (override with `ALLOWED_ORIGINS`) |
+| `GET /occ/v2/electronics-spa/[users/{userId}/]cms/pages` | Home (`LandingPage2Template`), product page (`ProductDetailsPageTemplate`, for `pageType=ProductPage&code=...`), search and `/not-found`. Header and footer slots are shared by every page |
+| `GET .../cms/components?componentIds=...` | Components referenced by navigation nodes and tab containers |
+| `GET .../languages`, `.../currencies`, `.../products/suggestions`, `.../products/{code}/reviews` | What the header, search box and product tabs ask for |
+| `GET /medias/<name>` | A generated SVG placeholder showing `<name>` (any extension) |
+| CORS | Only `http://localhost:4200` and `https://localhost:4200` (override with `ALLOWED_ORIGINS`), with the storefront headers (`x-anonymous-consents`...) allowed |
+
+The content catalog lives in `data.mjs`: `cmsComponents` (uid → component), `sharedSlots` (header and footer) and `cmsPages` (slot → component uids). To try a CMS mapping in Phase 4 or 5, add a component there and reference it from a page.
 
 **Staged versus Online.** Edits made through the mock-only admin endpoints land in a Staged copy and reach the API only after a sync:
 
@@ -26,4 +33,4 @@ curl localhost:9002/occ/v2/electronics-spa/products/300938?fields=name      # st
 curl -X POST localhost:9002/mock/admin/sync -H "Content-Type: application/json" -d '{"catalog":"product"}'   # or "content" / "both"
 ```
 
-**Not mocked yet:** checkout, orders, addresses, search facets, the authorization-code flow. They are added when a later phase needs them.
+**Not mocked yet:** category pages, checkout, orders, addresses, search facets, logged-in storefront login (the authorization-code flow). They are added when a later step needs them.
