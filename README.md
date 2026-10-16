@@ -52,7 +52,7 @@ cd mystore && npm install && npm start
 
 SSR: `npm run build`, then `NG_ALLOWED_HOSTS=localhost npm run serve:ssr:mystore` (PowerShell: `$env:NG_ALLOWED_HOSTS="localhost"; npm run serve:ssr:mystore`). Without the variable the server logs `URL with hostname "localhost" is not allowed` and silently falls back to client-side rendering, exactly as in Phase 2.
 
-## Corrections the plan needs (found while verifying)
+## Corrections found while verifying (applied to `docs/training-plan.md` on October 16, 2026)
 
 | Where | Problem | Fix |
 | --- | --- | --- |
