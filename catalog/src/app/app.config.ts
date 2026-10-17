@@ -5,6 +5,7 @@ import { routes } from './app.routes';
 import { provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { cartReducer } from './state/cart.reducer';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,5 +14,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideStore({ cart: cartReducer }),
     provideStoreDevtools(),
+    provideClientHydration(withEventReplay()),
   ],
 };
