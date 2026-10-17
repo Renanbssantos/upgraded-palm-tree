@@ -18,6 +18,12 @@ ng generate service product --type=service
 | `catalog/src/app/app.config.ts` | add `provideHttpClient()` |
 | `catalog/src/app/product-list/product-list.ts` | replace the test data with `toSignal(service.list()...)` |
 
+## Check (after the changes)
+
+```bash
+ng serve
+```
+
 ## Done when
 
 The list shows real products from dummyjson.com.
