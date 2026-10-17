@@ -6,7 +6,7 @@ Plan: `docs/training-plan.md` → Phase 2, Step 1 · Previous: `phase1-step07` �
 
 ```bash
 cd catalog
-ng generate component cart --skip-tests
+ng generate component cart --inline-template --inline-style --skip-tests
 ```
 
 ## Files
@@ -16,6 +16,12 @@ ng generate component cart --skip-tests
 | `catalog/src/app/cart/cart.ts` | `items`, `total`, `effect`; exercise: `itemCount` and `increment()` |
 | `catalog/src/app/app.ts` | import `Cart` |
 | `catalog/src/app/app.html` | `<app-cart />` above `<router-outlet />` |
+
+## Check (after the changes)
+
+```bash
+ng serve                       # F12: the effect logs every total
+```
 
 ## Done when
 
