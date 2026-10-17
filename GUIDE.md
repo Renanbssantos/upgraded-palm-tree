@@ -6,7 +6,6 @@ Plan: `docs/training-plan.md` → Phase 5, Step 7 · Previous: `phase5-step06` �
 
 ```bash
 cd mystore
-npm test
 ```
 
 ## Files
@@ -16,6 +15,12 @@ npm test
 | `mystore/src/app/custom/product-comparison/product-comparison.service.spec.ts` | limit, toggle, clear, persistence (`TestBed.tick()`) |
 | `mystore/src/app/custom/compare-button/compare-button.spec.ts` | toggle; stretch: disabled when full |
 | `mystore/src/app/custom/product-comparison/product-comparison.spec.ts` | fake `ProductService`: empty state, columns, attributes |
+
+## Check (after the changes)
+
+```bash
+npm test
+```
 
 ## Done when
 
