@@ -2,13 +2,6 @@
 
 Plan: `docs/training-plan.md` → Phase 4, Step 9 · Previous: `phase4-step08` · Next: `phase4-step10`
 
-## Commands
-
-```bash
-cd mystore && npm start
-# switch to German in the header
-```
-
 ## Files
 
 | File | Change |
@@ -18,6 +11,13 @@ cd mystore && npm start
 | `mystore/src/app/app.component.ts` | import `I18nModule` |
 | `mystore/src/app/custom/cart-badge/cart-badge.ts` | `'cartBadge.items' | cxTranslate: { count }` |
 | `mystore/src/app/custom/custom-product-summary/custom-product-summary.ts` | badge through `cxTranslate` |
+
+## Check (after the changes)
+
+```bash
+cd mystore && npm start
+# switch to German in the header
+```
 
 ## Done when
 
