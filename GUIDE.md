@@ -2,17 +2,17 @@
 
 Plan: `docs/training-plan.md` → Phase 3, Step 5 · Previous: `phase3-step04` · Next: `phase3-step06`
 
-## Commands
-
-```bash
-bash occ-calls/commands.sh
-```
-
 ## Files
 
 | File | Change |
 | --- | --- |
 | `occ-calls/commands.sh` | add: create anonymous cart, add entry, view; exercise: `PATCH` quantity 3, `DELETE` entry |
+
+## Check (after the changes)
+
+```bash
+bash occ-calls/commands.sh
+```
 
 ## Done when
 

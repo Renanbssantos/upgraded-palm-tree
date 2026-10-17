@@ -17,7 +17,7 @@ curl -sk "$HOST/occ/v2/basesites" | json
 
 step "Step 3: search, detail (3 sizes), field projection"
 curl -sk "$BASE/products/search?query=camera&fields=DEFAULT" | json
-CODE=$(curl -sk "$BASE/products/search?query=camera&fields=BASIC" | sed -E 's/.*"code":"([^"]+)".*/\1/')
+CODE=$(curl -sk "$BASE/products/search?query=camera&fields=products(code)" | grep -o '"code":"[^"]*"' | head -1 | cut -d'"' -f4)
 echo "product code: $CODE"
 for f in BASIC DEFAULT FULL; do printf '%-8s %s bytes\n' "$f" "$(curl -sk "$BASE/products/$CODE?fields=$f" | wc -c)"; done
 curl -sk "$BASE/products/$CODE?fields=code,name,price(formattedValue)" | json
@@ -38,4 +38,3 @@ curl -sk -X POST "$BASE/users/anonymous/carts/$GUID/entries" -H "Content-Type: a
 curl -sk "$BASE/users/anonymous/carts/$GUID?fields=FULL" | json
 curl -sk -X PATCH "$BASE/users/anonymous/carts/$GUID/entries/0" -H "Content-Type: application/json" -d '{"quantity": 3}' | json
 curl -sk -X DELETE "$BASE/users/anonymous/carts/$GUID/entries/0" -o /dev/null -w 'DELETE -> HTTP %{http_code}\n'
-
