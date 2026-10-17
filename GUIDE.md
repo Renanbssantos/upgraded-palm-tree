@@ -6,7 +6,7 @@ Plan: `docs/training-plan.md` → Phase 2, Step 7 · Previous: `phase2-step06` �
 
 ```bash
 cd catalog
-ng generate component address-form --skip-tests
+ng generate component address-form --inline-style --skip-tests
 ```
 
 ## Files
@@ -16,6 +16,12 @@ ng generate component address-form --skip-tests
 | `catalog/src/app/address-form/address-form.ts` | `FormBuilder` group with validators; exercise: `number` field |
 | `catalog/src/app/address-form/address-form.html` | form, error messages, `[disabled]="form.invalid"` |
 | `catalog/src/app/app.routes.ts` | route `address` |
+
+## Check (after the changes)
+
+```bash
+ng serve                       # open /address
+```
 
 ## Done when
 
