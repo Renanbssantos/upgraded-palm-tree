@@ -6,8 +6,6 @@ Plan: `docs/training-plan.md` → Phase 4, Step 12 · Previous: `phase4-step11` 
 
 ```bash
 cd mystore
-npm test
-# keyboard only: Tab to "Add to cart", Enter; Lighthouse in Chrome DevTools
 ```
 
 ## Files
@@ -17,6 +15,13 @@ npm test
 | `mystore/src/app/custom/cart-badge/cart-badge.spec.ts` | create: fake `ActiveCartFacade` |
 | `mystore/src/app/custom/custom-product-summary/custom-product-summary.spec.ts` | create: fake `CurrentProductService` |
 | `mystore/src/app/custom/warranty.normalizer.spec.ts` | create |
+
+## Check (after the changes)
+
+```bash
+npm test
+# keyboard only: Tab to "Add to cart", Enter; Lighthouse in Chrome DevTools
+```
 
 ## Done when
 
