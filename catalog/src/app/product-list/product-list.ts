@@ -2,11 +2,12 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { ProductCard } from '../product-card/product-card';
+import { RouterLink } from '@angular/router';
 import { ProductService } from '../product.service';
 
 @Component({
   selector: 'app-product-list',
-  imports: [ProductCard],
+  imports: [ProductCard, RouterLink],
   templateUrl: './product-list.html',
 })
 export class ProductList {
