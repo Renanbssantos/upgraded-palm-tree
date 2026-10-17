@@ -39,3 +39,6 @@ curl -sk "$BASE/users/anonymous/carts/$GUID?fields=FULL" | json
 curl -sk -X PATCH "$BASE/users/anonymous/carts/$GUID/entries/0" -H "Content-Type: application/json" -d '{"quantity": 3}' | json
 curl -sk -X DELETE "$BASE/users/anonymous/carts/$GUID/entries/0" -o /dev/null -w 'DELETE -> HTTP %{http_code}\n'
 
+step "Step 6: CMS page (look for template, position, typeCode)"
+curl -sk "$BASE/cms/pages?pageType=ContentPage&pageLabelOrId=homepage" | json
+
