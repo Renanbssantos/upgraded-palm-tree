@@ -6,9 +6,6 @@ Plan: `docs/training-plan.md` → Phase 5, Step 8 · Previous: `phase5-step07` �
 
 ```bash
 cd mystore
-npm run build
-NG_ALLOWED_HOSTS=localhost npm run serve:ssr:mystore
-# /compare, keyboard check, Lighthouse
 ```
 
 ## Files
@@ -17,6 +14,14 @@ NG_ALLOWED_HOSTS=localhost npm run serve:ssr:mystore
 | --- | --- |
 | `mystore/src/app/spartacus/spartacus-configuration.module.ts` | `urlParameters: ['baseSite', 'language', 'currency']` (SSR keeps the language) |
 | `mystore/README.md` | "Checks" table and technical decisions |
+
+## Check (after the changes)
+
+```bash
+npm run build
+NG_ALLOWED_HOSTS=localhost npm run serve:ssr:mystore   # open /electronics-spa/de/USD/compare
+# keyboard check, Lighthouse
+```
 
 ## Done when
 
