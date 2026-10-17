@@ -22,3 +22,11 @@ echo "product code: $CODE"
 for f in BASIC DEFAULT FULL; do printf '%-8s %s bytes\n' "$f" "$(curl -sk "$BASE/products/$CODE?fields=$f" | wc -c)"; done
 curl -sk "$BASE/products/$CODE?fields=code,name,price(formattedValue)" | json
 
+step "Step 4: OAuth2 password grant, then a protected call"
+TOKEN=$(curl -sk -X POST "$HOST/authorizationserver/oauth/token" \
+  -d "client_id=mobile_android&client_secret=secret" \
+  -d "grant_type=password&username=$USER_EMAIL&password=$USER_PASS" | sed -E 's/.*"access_token":"([^"]+)".*/\1/')
+curl -sk -H "Authorization: Bearer $TOKEN" "$BASE/users/current" | json
+echo "no header     -> HTTP $(curl -sk -o /dev/null -w '%{http_code}' "$BASE/users/current")"
+echo "invalid token -> HTTP $(curl -sk -o /dev/null -w '%{http_code}' -H 'Authorization: Bearer nope' "$BASE/users/current")"
+
