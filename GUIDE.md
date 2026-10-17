@@ -6,7 +6,7 @@ Plan: `docs/training-plan.md` → Phase 5, Step 4 · Previous: `phase5-step03` �
 
 ```bash
 cd mystore
-ng generate component custom/compare-button --skip-tests
+ng generate component custom/compare-button --type= --inline-template --inline-style --skip-tests
 ```
 
 ## Files
@@ -20,6 +20,12 @@ ng generate component custom/compare-button --skip-tests
 | `mystore/src/styles.scss` | `.compare-button`, `.compare-limit` |
 
 Provided: The mock gets a 5th product to try the limit.
+
+## Check (after the changes)
+
+```bash
+npm start                      # open a product page, click Compare
+```
 
 ## Done when
 
