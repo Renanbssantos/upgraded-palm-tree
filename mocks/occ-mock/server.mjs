@@ -4,14 +4,14 @@
 import http from 'node:http';
 import { randomUUID } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
-import { baseSites, customers, clients, products, cmsPages } from './data.mjs';
+import { baseSites, customers, clients, products, cmsPages, cmsComponents, sharedSlots } from './data.mjs';
 
 const clone = (o) => structuredClone(o);
 
 // ---- fields parameter: BASIC / DEFAULT / FULL or a projection like "code,price(formattedValue)" ----
 const LEVELS = {
   BASIC: ['code', 'name', 'url'],
-  DEFAULT: ['code', 'name', 'url', 'summary', 'price', 'stock', 'images', 'averageRating'],
+  DEFAULT: ['code', 'name', 'url', 'summary', 'description', 'purchasable', 'price', 'stock', 'images', 'averageRating'],
 };
 
 function parseFields(spec) {
@@ -40,6 +40,8 @@ function parseFields(spec) {
 
 function pick(value, tree) {
   if (tree === true || value === null || typeof value !== 'object') return value;
+  // a level inside a projection, e.g. images(DEFAULT) or price(FULL): return the whole sub-object
+  if (Object.keys(tree).some((k) => k in LEVELS || k === 'FULL')) return value;
   if (Array.isArray(value)) return value.map((v) => pick(v, tree));
   const out = {};
   for (const [k, sub] of Object.entries(tree)) if (k in value) out[k] = pick(value[k], sub);
@@ -48,8 +50,16 @@ function pick(value, tree) {
 
 function project(value, fields = 'DEFAULT') {
   if (fields === 'FULL') return value;
-  if (LEVELS[fields]) return pick(value, Object.fromEntries(LEVELS[fields].map((f) => [f, true])));
-  return pick(value, parseFields(fields));
+  const tree = LEVELS[fields] ? {} : parseFields(fields);
+  if (tree.FULL) return value;
+  // "DEFAULT,foo,bar(baz)" = the DEFAULT level plus the listed fields (a field like
+  // warrantyYears only comes back when it is requested by name, as in the real OCC)
+  for (const level of Object.keys(LEVELS)) {
+    if (fields !== level && !tree[level]) continue;
+    delete tree[level];
+    for (const f of LEVELS[level]) tree[f] ??= true;
+  }
+  return pick(value, tree);
 }
 
 const money = (value) => ({
@@ -59,12 +69,34 @@ const money = (value) => ({
 });
 
 // ---- server factory (each instance has its own state, handy for tests) ----
-export function createMockServer({ allowedOrigins = ['http://localhost:4200', 'https://localhost:4200'] } = {}) {
+export function createMockServer({ allowedOrigins = ['http://localhost:4200', 'https://localhost:4200'], log = false } = {}) {
+  const cms = { pages: cmsPages, components: cmsComponents };
   const state = {
-    staged: { products: clone(products), cms: clone(cmsPages) },
-    online: { products: clone(products), cms: clone(cmsPages) },
+    staged: { products: clone(products), cms: clone(cms) },
+    online: { products: clone(products), cms: clone(cms) },
     tokens: new Map(), // access_token -> { uid, exp }
     carts: [],
+  };
+
+  // Builds the OCC page response: page slots first, then the shared header/footer slots.
+  const assemblePage = (page) => {
+    const slot = ([position, uids]) => ({
+      slotId: `${position}Slot`,
+      position,
+      name: `${position} Slot`,
+      slotShared: position in sharedSlots,
+      components: { component: uids.map((uid) => state.online.cms.components[uid]).filter(Boolean) },
+    });
+    const { slots, ...rest } = page;
+    return { ...rest, contentSlots: { contentSlot: [...Object.entries(slots), ...Object.entries(sharedSlots)].map(slot) } };
+  };
+  const findPage = (q) => {
+    const label = q.get('pageLabelOrId');
+    const type = q.get('pageType') ?? 'ContentPage';
+    if (type === 'ProductPage') return state.online.products.some((p) => p.code === q.get('code')) ? state.online.cms.pages.productDetails : undefined;
+    if (!label && type === 'ContentPage') return state.online.cms.pages.homepage;
+    if (!label) return undefined; // CategoryPage is not mocked yet
+    return Object.values(state.online.cms.pages).find((p) => p.label === label || p.uid === label || `/${p.label}` === label);
   };
 
   const findCart = (user, id) =>
@@ -136,10 +168,14 @@ export function createMockServer({ allowedOrigins = ['http://localhost:4200', 'h
     const origin = req.headers.origin;
     const cors = {};
     if (origin && allowedOrigins.includes(origin)) {
+      // Same lists a real backend needs in corsfilter.commercewebservices.allowedHeaders / exposedHeaders
       Object.assign(cors, {
         'Access-Control-Allow-Origin': origin,
-        'Access-Control-Allow-Headers': 'Authorization, Content-Type, Accept-Language, Cache-Control',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers':
+          'origin, content-type, accept, authorization, cache-control, x-anonymous-consents, x-profile-tag-debug, x-consent-reference, occ-personalization-id, occ-personalization-time',
+        'Access-Control-Expose-Headers': 'x-anonymous-consents, occ-personalization-id, occ-personalization-time',
+        'Access-Control-Allow-Methods': 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS',
+        'Access-Control-Allow-Credentials': 'true',
         Vary: 'Origin',
       });
     }
@@ -149,7 +185,8 @@ export function createMockServer({ allowedOrigins = ['http://localhost:4200', 'h
 
     if (req.method === 'OPTIONS') return send(res, 204);
 
-    const url = new URL(req.url, 'http://mock');
+    // collapse "//" like a real server does (the storefront requests "<baseUrl>/" + "/medias/...")
+    const url = new URL(req.url.replace(/^\/{2,}/, '/').replace(/([^:])\/{2,}/g, '$1/'), 'http://mock');
     const path = url.pathname;
     const q = url.searchParams;
     const raw = await readBody(req);
@@ -174,6 +211,15 @@ export function createMockServer({ allowedOrigins = ['http://localhost:4200', 'h
       return send(res, 200, { access_token: token, token_type: 'bearer', refresh_token: randomUUID(), expires_in: 43199, scope: 'basic openid', });
     }
 
+    // ---- media: every /medias/<name> is a generated SVG placeholder showing <name> ----
+    if (req.method === 'GET' && path.startsWith('/medias/')) {
+      const label = decodeURIComponent(path.slice('/medias/'.length)).replace(/\.\w+$/, '');
+      const hue = [...label].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) % 360, 0);
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300"><rect width="600" height="300" fill="hsl(${hue},45%,85%)"/><text x="300" y="160" font-family="sans-serif" font-size="32" text-anchor="middle" fill="hsl(${hue},45%,25%)">${label.replace(/[<&>]/g, '')}</text></svg>`;
+      res.writeHead(200, { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'max-age=3600' });
+      return res.end(svg);
+    }
+
     // ---- mock-only admin endpoints (stand-in for Backoffice / synchronization) ----
     if (path.startsWith('/mock/admin/')) {
       if (req.method === 'PATCH' && path.startsWith('/mock/admin/products/')) {
@@ -184,8 +230,7 @@ export function createMockServer({ allowedOrigins = ['http://localhost:4200', 'h
       }
       if (req.method === 'PATCH' && path.startsWith('/mock/admin/cms/components/')) {
         const uid = path.split('/').pop();
-        const comps = Object.values(state.staged.cms).flatMap((pg) => pg.contentSlots.contentSlot.flatMap((s) => s.components.component));
-        const c = comps.find((x) => x.uid === uid);
+        const c = state.staged.cms.components[uid];
         if (!c) return ocError(res, 404, 'UnknownIdentifierError', 'Component not found');
         Object.assign(c, body);
         return send(res, 200, { staged: true, uid });
@@ -215,28 +260,75 @@ export function createMockServer({ allowedOrigins = ['http://localhost:4200', 'h
       const term = (q.get('query') ?? '').split(':')[0].toLowerCase();
       const pageSize = Number(q.get('pageSize') ?? 20);
       const page = Number(q.get('currentPage') ?? 0);
-      const hits = state.online.products.filter((p) => !term || `${p.name} ${p.manufacturer} ${p.code}`.toLowerCase().includes(term));
+      // filters=code:a,b,c is how the product carousel asks for specific products
+      const codes = /^code:(.+)$/.exec(q.get('filters') ?? '')?.[1].split(',');
+      const hits = state.online.products.filter(
+        (p) => (!codes || codes.includes(p.code)) && (!term || `${p.name} ${p.manufacturer} ${p.code}`.toLowerCase().includes(term)),
+      );
       const slice = hits.slice(page * pageSize, page * pageSize + pageSize);
       const res0 = {
         products: slice,
         pagination: { currentPage: page, pageSize, totalResults: hits.length, totalPages: Math.ceil(hits.length / pageSize) },
         freeTextSearch: q.get('query') ?? '',
+        currentQuery: { query: { value: q.get('query') ?? '' }, url: `/search?q=${encodeURIComponent(q.get('query') ?? '')}` },
+        sorts: [{ code: 'relevance', name: 'Relevance', selected: true }],
+        facets: [],
+        breadcrumbs: [],
       };
       // "fields" on search applies to the wrapper; named levels apply to each product
       const out = LEVELS[fields] || fields === 'FULL' ? { ...res0, products: project(slice, fields) } : pick(res0, parseFields(fields));
       return send(res, 200, out);
+    }
+    if (req.method === 'GET' && rest === 'products/suggestions') {
+      const term = (q.get('term') ?? '').toLowerCase();
+      const names = state.online.products.map((p) => p.name).filter((n) => term && n.toLowerCase().includes(term));
+      return send(res, 200, { suggestions: names.slice(0, Number(q.get('max') ?? 5)).map((value) => ({ value })) });
+    }
+    if (req.method === 'GET' && (r = /^products\/([^/]+)\/reviews$/.exec(rest))) return send(res, 200, { reviews: [] });
+    if (req.method === 'GET' && (r = /^products\/([^/]+)\/references$/.exec(rest))) {
+      // every other product is a SIMILAR reference; the cheaper ones are also ACCESSORIES
+      const others = state.online.products.filter((p) => p.code !== r[1]);
+      const references = [
+        ...others.map((p) => ({ referenceType: 'SIMILAR', preselected: false, target: p })),
+        ...others.filter((p) => p.price.value < 300).map((p) => ({ referenceType: 'ACCESSORIES', preselected: false, target: p })),
+      ].filter((ref) => !q.get('referenceType') || ref.referenceType === q.get('referenceType'));
+      return send(res, 200, { references });
     }
     if (req.method === 'GET' && (r = /^products\/([^/]+)$/.exec(rest))) {
       const p = state.online.products.find((x) => x.code === r[1]);
       if (!p) return ocError(res, 400, 'UnknownIdentifierError', `Product with code '${r[1]}' not found!`);
       return send(res, 200, project(p, fields));
     }
-    if (req.method === 'GET' && rest === 'cms/pages') {
-      const label = (q.get('pageLabelOrId') ?? '').replace(/^\//, '') || 'homepage';
-      const page = state.online.cms[label];
-      if (!page) return ocError(res, 400, 'CMSItemNotFoundError', `No page found for pageLabelOrId '${label}'`);
-      return send(res, 200, page);
+    // CMS: the storefront uses users/{userId}/cms/...; the plain cms/... form is kept for the Phase 3 curl calls
+    const cmsPath = rest.replace(/^users\/[^/]+\//, '');
+    if (req.method === 'GET' && cmsPath === 'cms/pages') {
+      const page = findPage(q);
+      if (!page) return ocError(res, 400, 'CMSItemNotFoundError', `No page found for pageLabelOrId '${q.get('pageLabelOrId') ?? ''}' (pageType ${q.get('pageType') ?? 'ContentPage'})`);
+      return send(res, 200, assemblePage(page));
     }
+    if ((r = /^cms\/pages\/([^/]+)$/.exec(cmsPath)) && req.method === 'GET') {
+      const page = state.online.cms.pages[r[1]];
+      if (!page) return ocError(res, 400, 'CMSItemNotFoundError', `No page with uid '${r[1]}'`);
+      return send(res, 200, assemblePage(page));
+    }
+    if (cmsPath === 'cms/components' && (req.method === 'GET' || req.method === 'POST')) {
+      const ids = req.method === 'POST' ? (body.idList ?? []) : (q.get('componentIds') ?? '').split(',').filter(Boolean);
+      const component = ids.map((id) => state.online.cms.components[id]).filter(Boolean);
+      return send(res, 200, { component, pagination: { currentPage: 0, pageSize: component.length, totalResults: component.length, totalPages: 1 } });
+    }
+    if ((r = /^cms\/components\/([^/]+)$/.exec(cmsPath)) && req.method === 'GET') {
+      const c = state.online.cms.components[r[1]];
+      if (!c) return ocError(res, 400, 'CMSItemNotFoundError', `No component with uid '${r[1]}'`);
+      return send(res, 200, c);
+    }
+
+    // site context
+    const store = baseSites.find((b) => b.uid === siteId).stores[0];
+    if (req.method === 'GET' && rest === 'languages')
+      return send(res, 200, { languages: store.languages.map((l) => ({ ...l, nativeName: l.name, active: true })) });
+    if (req.method === 'GET' && rest === 'currencies')
+      return send(res, 200, { currencies: store.currencies.map((c) => ({ ...c, active: true })) });
+    if (req.method === 'GET' && /^users\/[^/]+\/consenttemplates$/.test(rest)) return send(res, 200, { consentTemplates: [] });
 
     // carts and users
     r = /^users\/([^/]+)(?:\/(.*))?$/.exec(rest);
@@ -261,7 +353,9 @@ export function createMockServer({ allowedOrigins = ['http://localhost:4200', 'h
       }
       if ((c = /^carts\/([^/]+)(?:\/entries(?:\/(\d+))?)?$/.exec(sub))) {
         const cart = findCart(owner, c[1]);
-        if (!cart) return ocError(res, 400, 'CartError', `Cart not found.`);
+        // same shape as the real OCC, so the storefront drops the stale cart silently
+        // (e.g. after the mock restarts and forgets its in-memory carts)
+        if (!cart) return send(res, 400, { errors: [{ type: 'CartError', message: 'Cart not found.', reason: 'notFound', subjectType: 'cart', subject: c[1] }] });
         const hasEntries = sub.includes('/entries');
         if (!hasEntries && req.method === 'GET') return send(res, 200, cartView(cart, fields));
         if (hasEntries && req.method === 'POST' && c[2] === undefined) {
@@ -295,6 +389,8 @@ export function createMockServer({ allowedOrigins = ['http://localhost:4200', 'h
   }
 
   return http.createServer((req, res) => {
+    // one line per request; unhandled calls stand out as 404 "No handler"
+    if (log) res.on('finish', () => console.log(`${res.statusCode} ${req.method} ${req.url}`));
     handle(req, res).catch((err) => {
       console.error(err);
       if (!res.headersSent) send(res, 500, { errors: [{ type: 'InternalError', message: String(err) }] });
@@ -305,7 +401,7 @@ export function createMockServer({ allowedOrigins = ['http://localhost:4200', 'h
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const port = Number(process.env.PORT ?? 9002);
   const origins = (process.env.ALLOWED_ORIGINS ?? 'http://localhost:4200 https://localhost:4200').split(/\s+/).filter(Boolean);
-  createMockServer({ allowedOrigins: origins }).listen(port, () => {
+  createMockServer({ allowedOrigins: origins, log: process.env.QUIET !== '1' }).listen(port, () => {
     console.log(`Mock SAP Commerce listening on http://localhost:${port}  (allowed origins: ${origins.join(', ')})`);
     console.log(`  OCC   : http://localhost:${port}/occ/v2/electronics-spa`);
     console.log(`  OAuth : http://localhost:${port}/authorizationserver/oauth/token`);
