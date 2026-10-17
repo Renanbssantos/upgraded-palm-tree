@@ -6,7 +6,7 @@ Plan: `docs/training-plan.md` → Phase 5, Step 6 · Previous: `phase5-step05` �
 
 ```bash
 cd mystore
-ng generate component custom/compare-badge --skip-tests
+ng generate component custom/compare-badge --type= --inline-template --inline-style --skip-tests
 ```
 
 ## Files
@@ -19,6 +19,12 @@ ng generate component custom/compare-badge --skip-tests
 | `mystore/src/styles.scss` | `.compare-badge` |
 
 Provided: The mock header gets the `SiteLinks` slot (the outlet needs it).
+
+## Check (after the changes)
+
+```bash
+npm start
+```
 
 ## Done when
 
