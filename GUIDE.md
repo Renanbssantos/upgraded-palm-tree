@@ -7,8 +7,6 @@ Plan: `docs/training-plan.md` → Phase 2, Step 8 · Previous: `phase2-step07` �
 ```bash
 cd catalog
 ng add @angular/ssr
-npm run build
-NG_ALLOWED_HOSTS=localhost npm run serve:ssr:catalog   # http://localhost:4000
 ```
 
 ## Files
@@ -21,6 +19,15 @@ NG_ALLOWED_HOSTS=localhost npm run serve:ssr:catalog   # http://localhost:4000
 | `catalog/src/app/app.html` | `<app-last-visit />` |
 
 Provided: `ng add` creates/changes `server.ts`, `main.server.ts`, `app.config.server.ts`, `app.config.ts`, `angular.json`, `package.json`, `tsconfig.app.json`.
+
+Note: ng add asks to confirm the installation: answer Y. Edit `app.routes.server.ts` before building: with `RenderMode.Prerender` the build fails on `product/:id`.
+
+## Check (after the changes)
+
+```bash
+npm run build
+NG_ALLOWED_HOSTS=localhost npm run serve:ssr:catalog   # http://localhost:4000
+```
 
 ## Done when
 
