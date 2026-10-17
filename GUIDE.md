@@ -6,8 +6,6 @@ Plan: `docs/training-plan.md` → Phase 4, Step 11 · Previous: `phase4-step10` 
 
 ```bash
 cd mystore
-npm run build
-NG_ALLOWED_HOSTS=localhost npm run serve:ssr:mystore   # http://localhost:4000
 ```
 
 ## Files
@@ -15,6 +13,13 @@ NG_ALLOWED_HOSTS=localhost npm run serve:ssr:mystore   # http://localhost:4000
 | File | Change |
 | --- | --- |
 | `mystore/src/server.ts` | `NgExpressEngineDecorator.get(engine, { timeout: 3000, cache: false })` |
+
+## Check (after the changes)
+
+```bash
+npm run build
+NG_ALLOWED_HOSTS=localhost npm run serve:ssr:mystore   # http://localhost:4000
+```
 
 ## Done when
 
