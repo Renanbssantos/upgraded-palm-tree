@@ -2,18 +2,18 @@
 
 Plan: `docs/training-plan.md` → Phase 4, Step 6 · Previous: `phase4-step05` · Next: `phase4-step07`
 
-## Commands
-
-```bash
-cd mystore && npm start
-```
-
 ## Files
 
 | File | Change |
 | --- | --- |
 | `mystore/src/app/app.component.ts` | import `OutletRefDirective`, expose `OutletPosition` |
 | `mystore/src/app/app.component.html` | remove the temporary badge; `ng-template`s with `[cxOutletPos]="OutletPosition.AFTER"` on `ProductAddToCartComponent` and `MiniCartComponent` |
+
+## Check (after the changes)
+
+```bash
+cd mystore && npm start
+```
 
 ## Done when
 
