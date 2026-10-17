@@ -7,7 +7,7 @@ Plan: `docs/training-plan.md` → Phase 2, Step 5 · Previous: `phase2-step04` �
 ```bash
 cd catalog
 ng add @ngrx/store
-npm install @ngrx/store-devtools
+npm install @ngrx/store-devtools@21   # @21: the latest (22) needs Angular 22
 ```
 
 ## Files
@@ -19,6 +19,14 @@ npm install @ngrx/store-devtools
 | `catalog/src/app/state/cart.selectors.ts` | create `selectCart`, `selectTotal` |
 | `catalog/src/app/app.config.ts` | replace the empty `provideStore()` with `provideStore({ cart: cartReducer })`, add `provideStoreDevtools()` |
 | `catalog/src/app/cart/cart.ts` | `store.dispatch(...)` and `store.selectSignal(selectTotal)` |
+
+Note: ng add asks to confirm the installation: answer Y.
+
+## Check (after the changes)
+
+```bash
+ng serve                       # Redux DevTools tab
+```
 
 ## Done when
 
