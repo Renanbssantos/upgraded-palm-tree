@@ -4,7 +4,8 @@ import { I18nModule } from '@spartacus/core';
 import { CurrentProductService } from '@spartacus/storefront';
 
 // Phase 4, Step 5: replaces the CMS component ProductSummaryComponent (mapping in custom.module.ts).
-// Exercises: "Free shipping" badge above 200 (Step 5), translated (Step 9).
+// Exercises: "Free shipping" badge above 200 (Step 5), translated (Step 9),
+// and the custom attribute warrantyYears read through a normalizer (Step 10).
 @Component({
   selector: 'app-custom-product-summary',
   imports: [I18nModule],
@@ -18,6 +19,9 @@ import { CurrentProductService } from '@spartacus/storefront';
       }
       <p [innerHTML]="p.summary"></p>
       <!-- summary comes with HTML from the backend -->
+      @if (p.warrantyYears) {
+        <p class="warranty">{{ 'product.warranty' | cxTranslate: { years: p.warrantyYears } }}</p>
+      }
     }
   `,
 })

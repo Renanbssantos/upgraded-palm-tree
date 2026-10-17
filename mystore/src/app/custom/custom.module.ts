@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
-import { CmsConfig, I18nConfig, provideConfig } from '@spartacus/core';
+import { CmsConfig, I18nConfig, OccConfig, PRODUCT_NORMALIZER, provideConfig } from '@spartacus/core';
 import { LayoutConfig } from '@spartacus/storefront';
 import { CustomProductSummary } from './custom-product-summary/custom-product-summary';
+import { WarrantyNormalizer } from './warranty.normalizer';
 
 // Every storefront customization of Phase 4 lives here (imported by AppModule).
 @NgModule({
@@ -39,17 +40,35 @@ import { CustomProductSummary } from './custom-product-summary/custom-product-su
               shipping: { freeAbove: 'Free shipping over {{ value }}', badge: 'Free shipping' },
               // i18next picks _one / _other from the "count" parameter
               cartBadge: { items_one: '{{ count }} item', items_other: '{{ count }} items' },
+              product: { warranty: 'Warranty: {{ years }} years' },
             },
           },
           de: {
             custom: {
               shipping: { freeAbove: 'Kostenloser Versand ab {{ value }}', badge: 'Kostenloser Versand' },
               cartBadge: { items_one: '{{ count }} Artikel', items_other: '{{ count }} Artikel' },
+              product: { warranty: 'Garantie: {{ years }} Jahre' },
             },
           },
         },
         // tells which chunk holds each top-level key
-        chunks: { custom: ['shipping', 'cartBadge'] },
+        chunks: { custom: ['shipping', 'cartBadge', 'product'] },
+      },
+    }),
+
+    // Step 10: add our normalizer to the queue (multi: true keeps the default ones)...
+    { provide: PRODUCT_NORMALIZER, useExisting: WarrantyNormalizer, multi: true },
+    // ...and request the field: the storefront's default "details" scope + warrantyYears at the end
+    provideConfig(<OccConfig>{
+      backend: {
+        occ: {
+          endpoints: {
+            product: {
+              details:
+                'products/${productCode}?fields=averageRating,stock(DEFAULT),description,availableForPickup,code,url,price(DEFAULT),numberOfReviews,manufacturer,categories(FULL),priceRange,multidimensional,tags,images(FULL),warrantyYears',
+            },
+          },
+        },
       },
     }),
   ],
