@@ -6,8 +6,7 @@ Plan: `docs/training-plan.md` → Phase 4, Step 1 · Previous: `phase3-step07` �
 
 ```bash
 mkdir mystore
-# write mystore/.npmrc, then:
-cd mystore && npm view @spartacus/core versions
+# write mystore/.npmrc (see Files)
 ```
 
 ## Files
@@ -15,6 +14,12 @@ cd mystore && npm view @spartacus/core versions
 | File | Change |
 | --- | --- |
 | `mystore/.npmrc` | `@spartacus:registry=...` (here the local Verdaccio; in a client project, RBSC with its credential) |
+
+## Check (after the changes)
+
+```bash
+cd mystore && npm view @spartacus/core versions
+```
 
 ## Done when
 
