@@ -72,3 +72,20 @@ SSR: `npm run build`, then `NG_ALLOWED_HOSTS=localhost npm run serve:ssr:mystore
 | 2026-10-17 | Keyboard | Tab reaches "Compare" right after "Add to cart", with a visible outline; Enter toggles it and focus stays on the button; the header badge is a link reached by Tab |
 | 2026-10-17 | Screen reader cues | Disabled button points to the reason with `aria-describedby`; the badge sits in an `aria-live="polite"` region; the table has a caption and `scope` on every header |
 | 2026-10-17 | Lighthouse | Not run in this environment; run it in Chrome DevTools on the PDP before and after the button |
+
+## Upgrade (Step 9)
+
+**Status on 2026-10-17: not done, no newer release exists.** This project runs 221121.20.0, the latest released version (newest tag on `SAP/spartacus`). The `release/221121.22.x` branch exists but is a pre-release (`221121.22.0-1`, not tagged).
+
+When the next version is out (here: build it from its release tag and publish it to the local registry, as in the repository README; in a client project: RBSC):
+
+```bash
+git checkout -b upgrade                                  # work on a separate branch
+npm view @spartacus/core versions                        # confirm the new version is available
+ng update @spartacus/schematics@<new-version>            # automatic migrations
+npm install
+npm run build && npm test                                # builds and runs the 18 tests
+git diff                                                 # review what the migration changed
+```
+
+What could affect the comparison tool, to check in the release notes: `ProductService` and `ProductScope`, `CurrentProductService`, the `OutletPosition` / `cxOutletRef` API, `CmsConfig` mapping of `CMSFlexComponent`, feature toggles such as `reloadOnLanguageChange`, and the default `product` endpoint scopes. Everything here goes through those public APIs; nothing was copied from the libraries.
