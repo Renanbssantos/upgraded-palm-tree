@@ -6,7 +6,6 @@ Plan: `docs/training-plan.md` → Phase 2, Step 2 · Previous: `phase2-step01` �
 
 ```bash
 cd catalog
-ng serve
 ```
 
 ## Files
@@ -15,6 +14,12 @@ ng serve
 | --- | --- |
 | `catalog/src/app/product-detail/product-detail.ts` | `httpResource` and `linkedSignal`, `templateUrl` |
 | `catalog/src/app/product-detail/product-detail.html` | create: loading / error / success; exercise: "Try again" with `reload()` |
+
+## Check (after the changes)
+
+```bash
+ng serve                       # open /product/1, then /product/2
+```
 
 ## Done when
 
