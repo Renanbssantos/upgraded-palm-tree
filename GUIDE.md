@@ -6,7 +6,7 @@ Plan: `docs/training-plan.md` → Phase 1, Step 4 · Previous: `phase1-step03` �
 
 ```bash
 cd catalog
-ng generate component product-card
+ng generate component product-card --inline-template --inline-style
 ```
 
 ## Files
@@ -16,6 +16,12 @@ ng generate component product-card
 | `catalog/src/app/product-card/product-card.ts` | `input()`, `computed()`; exercise: `discount` input and `finalPrice` |
 | `catalog/src/app/app.ts` | add `ProductCard` to `imports` |
 | `catalog/src/app/app.html` | replace the sample content with `<app-product-card ... />` |
+
+## Check (after the changes)
+
+```bash
+ng serve
+```
 
 ## Done when
 
