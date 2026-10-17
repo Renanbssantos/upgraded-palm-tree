@@ -5,7 +5,7 @@ Plan: `docs/training-plan.md` → Phase 4, Step 10 · Previous: `phase4-step09` 
 ## Commands
 
 ```bash
-curl "http://localhost:9002/occ/v2/electronics-spa/products/1934793?fields=DEFAULT,warrantyYears"
+curl "http://localhost:9002/occ/v2/electronics-spa/products/1934793?fields=DEFAULT,warrantyYears"   # the field exists
 ```
 
 ## Files
@@ -15,6 +15,12 @@ curl "http://localhost:9002/occ/v2/electronics-spa/products/1934793?fields=DEFAU
 | `mystore/src/app/custom/warranty.normalizer.ts` | create: `declare module` for `Product` + `WarrantyNormalizer` |
 | `mystore/src/app/custom/custom.module.ts` | `PRODUCT_NORMALIZER` (`multi: true`), `details` endpoint + `warrantyYears`, `product.warranty` text |
 | `mystore/src/app/custom/custom-product-summary/custom-product-summary.ts` | exercise: "Warranty: N years" |
+
+## Check (after the changes)
+
+```bash
+cd mystore && npm start          # DevTools → Network: the product request asks for warrantyYears
+```
 
 ## Done when
 
