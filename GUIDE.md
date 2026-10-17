@@ -2,17 +2,17 @@
 
 Plan: `docs/training-plan.md` → Phase 3, Step 6 · Previous: `phase3-step05` · Next: `phase3-step07`
 
-## Commands
-
-```bash
-bash occ-calls/commands.sh
-```
-
 ## Files
 
 | File | Change |
 | --- | --- |
 | `occ-calls/commands.sh` | add: `cms/pages` for the home page (template, positions, typeCodes) |
+
+## Check (after the changes)
+
+```bash
+bash occ-calls/commands.sh
+```
 
 ## Done when
 
