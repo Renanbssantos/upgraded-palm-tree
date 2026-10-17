@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { ProductCard } from './product-card/product-card';
+import { ProductList } from './product-list/product-list';
 
 @Component({
   selector: 'app-root',
-  imports: [ProductCard],
+  imports: [ProductList],
   templateUrl: './app.html',
 })
 export class App {}
