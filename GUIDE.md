@@ -6,9 +6,9 @@ Plan: `docs/training-plan.md` → Phase 5, Step 9 · Previous: `phase5-step08` �
 
 ```bash
 git checkout -b upgrade
+cd mystore
 ng update @spartacus/schematics@<new-version>
 npm install
-npm run build && npm test
 ```
 
 ## Files
@@ -16,6 +16,12 @@ npm run build && npm test
 | File | Change |
 | --- | --- |
 | `mystore/README.md` | "Upgrade" section (no newer release yet on 2026-10-17) |
+
+## Check (after the changes)
+
+```bash
+npm run build && npm test
+```
 
 ## Done when
 
