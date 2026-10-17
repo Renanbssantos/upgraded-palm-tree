@@ -17,8 +17,7 @@ curl -sk "$HOST/occ/v2/basesites" | json
 
 step "Step 3: search, detail (3 sizes), field projection"
 curl -sk "$BASE/products/search?query=camera&fields=DEFAULT" | json
-CODE=$(curl -sk "$BASE/products/search?query=camera&fields=BASIC" | sed -E 's/.*"code":"([^"]+)".*/\1/')
+CODE=$(curl -sk "$BASE/products/search?query=camera&fields=products(code)" | grep -o '"code":"[^"]*"' | head -1 | cut -d'"' -f4)
 echo "product code: $CODE"
 for f in BASIC DEFAULT FULL; do printf '%-8s %s bytes\n' "$f" "$(curl -sk "$BASE/products/$CODE?fields=$f" | wc -c)"; done
 curl -sk "$BASE/products/$CODE?fields=code,name,price(formattedValue)" | json
-

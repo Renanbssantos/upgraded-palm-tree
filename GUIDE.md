@@ -2,17 +2,17 @@
 
 Plan: `docs/training-plan.md` → Phase 3, Step 3 · Previous: `phase3-step02` · Next: `phase3-step04`
 
-## Commands
-
-```bash
-bash occ-calls/commands.sh
-```
-
 ## Files
 
 | File | Change |
 | --- | --- |
 | `occ-calls/commands.sh` | add: search, detail with `BASIC` / `DEFAULT` / `FULL` (sizes), field projection |
+
+## Check (after the changes)
+
+```bash
+bash occ-calls/commands.sh
+```
 
 ## Done when
 
