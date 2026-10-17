@@ -1,28 +1,34 @@
-# Angular specific
-/dist/
-/out-tsc/
-/tmp/
-/coverage/
-/e2e/test-output/
-/.angular/
-.angular/
+# Patterns without a leading "/" apply in every folder (catalog/, mystore/, mocks/...),
+# so switching branches never leaves build output or dependencies to commit.
 
-# Node modules and dependency files
-/node_modules/
+# Dependencies
+node_modules/
+
+# Build output (dist/ holds the chunk-*.js files) and Angular CLI cache
+dist/
+out-tsc/
+.angular/
+.ng/
+.angular-cli.json
+*.tsbuildinfo
+
+# Test output
+coverage/
+e2e/test-output/
+
+# Temporary files and environment
+tmp/
+.env
+
+# Lock files of a root-level install only (each project keeps its own package-lock.json)
 /package-lock.json
 /yarn.lock
-
-# Environment files
-/.env
-
-# Angular CLI and build artefacts
-/.angular-cli.json
-/.ng/
-
-# TypeScript cache
-*.tsbuildinfo
 
 # Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# OS and editor leftovers
+.DS_Store
+Thumbs.db
