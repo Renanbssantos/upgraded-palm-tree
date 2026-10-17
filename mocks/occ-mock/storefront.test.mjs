@@ -21,7 +21,7 @@ const positions = (page) => page.contentSlots.contentSlot.map((s) => s.position)
 test('homepage via users/anonymous/cms/pages, with shared header and footer slots', async () => {
   const { body } = await get(`${BASE}/users/anonymous/cms/pages?lang=en&curr=USD`);
   assert.equal(body.template, 'LandingPage2Template');
-  for (const p of ['Section1', 'SiteLogo', 'SearchBox', 'MiniCart', 'SiteLogin', 'SiteContext', 'NavigationBar', 'Footer'])
+  for (const p of ['Section1', 'SiteLogo', 'SearchBox', 'MiniCart', 'SiteLogin', 'SiteContext', 'SiteLinks', 'NavigationBar', 'Footer'])
     assert.ok(positions(body).includes(p), `missing slot ${p}`);
 });
 

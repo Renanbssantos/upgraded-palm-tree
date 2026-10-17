@@ -64,6 +64,12 @@ body {
   font-size: 0.875rem;
 }
 
+.compare-badge {
+  align-self: center;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
 .comparison-wrapper {
   overflow-x: auto; // the table scrolls sideways on phones instead of squeezing
   margin: 1rem 0;

@@ -138,6 +138,8 @@ const componentList = [
       ['CamcordersNavNode', 'Camcorders', ['CamcordersCategoryLink']],
     ]),
   },
+  link('FindStoreLink', 'Find a Store', '/store-finder'),
+  link('HelpLink', 'Help', '/not-found'),
   link('CamerasCategoryLink', 'Cameras', '/search/camera'),
   link('CamcordersCategoryLink', 'Camcorders', '/search/camcorder'),
   // footer
@@ -188,6 +190,7 @@ export const sharedSlots = {
   MiniCart: ['MiniCart'],
   SiteLogin: ['LoginComponent'],
   SiteContext: ['LanguageComponent', 'CurrencyComponent'],
+  SiteLinks: ['FindStoreLink', 'HelpLink'],
   NavigationBar: ['ElectronicsCategoryNavComponent'],
   Footer: ['FooterNavigationComponent'],
 };

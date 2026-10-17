@@ -12,6 +12,11 @@
   <app-compare-button />
 </ng-template>
 
+<!-- Phase 5, Step 6: the compare badge after the header's SiteLinks slot -->
+<ng-template cxOutletRef="SiteLinks" [cxOutletPos]="OutletPosition.AFTER">
+  <app-compare-badge />
+</ng-template>
+
 <!-- exercise: the cart badge from Step 4 next to the mini cart -->
 <ng-template cxOutletRef="MiniCartComponent" [cxOutletPos]="OutletPosition.AFTER">
   <app-cart-badge />
