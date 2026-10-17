@@ -54,6 +54,16 @@ body {
   font-weight: 600;
 }
 
+// Phase 5: comparison tool
+.compare-button {
+  margin-top: 0.5rem;
+}
+
+.compare-limit {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+}
+
 .cart-badge {
   align-self: center;
   color: var(--cx-color-text); // the MiniCart slot sets white text for the blue button

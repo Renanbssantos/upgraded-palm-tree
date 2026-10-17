@@ -42,6 +42,16 @@ import { WarrantyNormalizer } from './warranty.normalizer';
               cartBadge: { items_one: '{{ count }} item', items_other: '{{ count }} items' },
               product: { warranty: 'Warranty: {{ years }} years' },
             },
+            // Phase 5: the comparison tool
+            compare: {
+              compare: {
+                add: 'Compare',
+                remove: 'Remove from comparison',
+                limit: 'Limit of {{ max }} products: remove one to add this product.',
+                empty: 'No products to compare yet. Use the "Compare" button on a product page.',
+                badge: 'Compare ({{ count }})',
+              },
+            },
           },
           de: {
             custom: {
@@ -49,10 +59,19 @@ import { WarrantyNormalizer } from './warranty.normalizer';
               cartBadge: { items_one: '{{ count }} Artikel', items_other: '{{ count }} Artikel' },
               product: { warranty: 'Garantie: {{ years }} Jahre' },
             },
+            compare: {
+              compare: {
+                add: 'Vergleichen',
+                remove: 'Aus dem Vergleich entfernen',
+                limit: 'Maximal {{ max }} Produkte: Entfernen Sie eines, um dieses hinzuzufügen.',
+                empty: 'Noch keine Produkte zum Vergleichen. Nutzen Sie „Vergleichen“ auf einer Produktseite.',
+                badge: 'Vergleich ({{ count }})',
+              },
+            },
           },
         },
         // tells which chunk holds each top-level key
-        chunks: { custom: ['shipping', 'cartBadge', 'product'] },
+        chunks: { custom: ['shipping', 'cartBadge', 'product'], compare: ['compare'] },
       },
     }),
 

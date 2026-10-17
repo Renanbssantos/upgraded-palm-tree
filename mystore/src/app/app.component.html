@@ -7,6 +7,11 @@
   <p class="shipping">{{ 'shipping.freeAbove' | cxTranslate: { value: '$200' } }}</p>
 </ng-template>
 
+<!-- Phase 5, Step 4: the compare button, also after add to cart (one outlet can take several templates) -->
+<ng-template cxOutletRef="ProductAddToCartComponent" [cxOutletPos]="OutletPosition.AFTER">
+  <app-compare-button />
+</ng-template>
+
 <!-- exercise: the cart badge from Step 4 next to the mini cart -->
 <ng-template cxOutletRef="MiniCartComponent" [cxOutletPos]="OutletPosition.AFTER">
   <app-cart-badge />

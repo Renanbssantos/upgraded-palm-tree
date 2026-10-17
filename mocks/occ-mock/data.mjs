@@ -92,6 +92,11 @@ export const products = [
     manufacturer: 'Sony', category: 'camcorders', stock: 0,
     specs: { Resolution: '2.3 MP', 'Optical zoom': '10x', 'Image stabilizer': 'Optical' },
   }),
+  // a 5th product, so the comparison limit of 4 (Phase 5) can be tried
+  product('553637', 'NV10 Digital Camera', 176.4, {
+    manufacturer: 'Samsung', weight: '190 g',
+    specs: { Resolution: '10.1 MP', 'Optical zoom': '3x', 'Display size': '2.5 in' },
+  }),
 ];
 
 // ---- Content catalog -------------------------------------------------------

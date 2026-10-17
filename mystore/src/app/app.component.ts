@@ -2,10 +2,11 @@ import { Component, signal } from '@angular/core';
 import { I18nModule } from '@spartacus/core';
 import { OutletPosition, OutletRefDirective, StorefrontComponent } from '@spartacus/storefront';
 import { CartBadge } from './custom/cart-badge/cart-badge';
+import { CompareButton } from './custom/compare-button/compare-button';
 
 @Component({
   selector: 'app-root',
-  imports: [StorefrontComponent, OutletRefDirective, I18nModule, CartBadge],
+  imports: [StorefrontComponent, OutletRefDirective, I18nModule, CartBadge, CompareButton],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
