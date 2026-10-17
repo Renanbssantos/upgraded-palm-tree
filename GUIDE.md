@@ -6,8 +6,7 @@ Plan: `docs/training-plan.md` → Phase 5, Step 5 · Previous: `phase5-step04` �
 
 ```bash
 cd mystore
-ng generate component custom/product-comparison --skip-tests
-# open http://localhost:4200/compare
+ng generate component custom/product-comparison --type= --inline-template --inline-style --skip-tests
 ```
 
 ## Files
@@ -17,6 +16,12 @@ ng generate component custom/product-comparison --skip-tests
 | `mystore/src/app/custom/product-comparison/product-comparison.ts` | `ProductService.get(code, [DETAILS, ATTRIBUTES])` + `combineLatest`; stretch: attribute rows |
 | `mystore/src/app/custom/custom.module.ts` | `ProductComparisonComponent` mapping + table texts |
 | `mystore/src/styles.scss` | table styles |
+
+## Check (after the changes)
+
+```bash
+npm start                      # open http://localhost:4200/compare
+```
 
 ## Done when
 
