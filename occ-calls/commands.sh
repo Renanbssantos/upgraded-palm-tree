@@ -42,3 +42,5 @@ curl -sk -X DELETE "$BASE/users/anonymous/carts/$GUID/entries/0" -o /dev/null -w
 step "Step 6: CMS page (look for template, position, typeCode)"
 curl -sk "$BASE/cms/pages?pageType=ContentPage&pageLabelOrId=homepage" | json
 
+step "Step 7: CORS (only browsers enforce it; here we look at the header the server sends)"
+curl -sk -i -H "Origin: http://localhost:4200" "$BASE/products/$CODE?fields=code" | grep -i '^access-control-allow-origin' || echo "(no CORS header: origin not allowed)"
