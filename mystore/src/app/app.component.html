@@ -2,9 +2,9 @@
 
 <!-- Phase 4, Step 6 (outlets). The root component is always loaded, so these work on every page. -->
 
-<!-- exercise: the shipping message AFTER the add-to-cart component -->
+<!-- exercise: the shipping message AFTER the add-to-cart component, text from i18n (Step 9) -->
 <ng-template cxOutletRef="ProductAddToCartComponent" [cxOutletPos]="OutletPosition.AFTER">
-  <p class="shipping">Free shipping over $200</p>
+  <p class="shipping">{{ 'shipping.freeAbove' | cxTranslate: { value: '$200' } }}</p>
 </ng-template>
 
 <!-- exercise: the cart badge from Step 4 next to the mini cart -->

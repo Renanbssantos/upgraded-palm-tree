@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CmsConfig, provideConfig } from '@spartacus/core';
+import { CmsConfig, I18nConfig, provideConfig } from '@spartacus/core';
 import { LayoutConfig } from '@spartacus/storefront';
 import { CustomProductSummary } from './custom-product-summary/custom-product-summary';
 
@@ -27,6 +27,29 @@ import { CustomProductSummary } from './custom-product-summary/custom-product-su
           // so tablets (md) need their own rule or they inherit the xs list
           md: { slots: ['Summary', 'Tabs', 'UpSelling', 'CrossSelling', 'PlaceholderContentSlot'] },
         },
+      },
+    }),
+
+    // Step 9: our texts, per language → chunk → keys (exercise keys included)
+    provideConfig(<I18nConfig>{
+      i18n: {
+        resources: {
+          en: {
+            custom: {
+              shipping: { freeAbove: 'Free shipping over {{ value }}', badge: 'Free shipping' },
+              // i18next picks _one / _other from the "count" parameter
+              cartBadge: { items_one: '{{ count }} item', items_other: '{{ count }} items' },
+            },
+          },
+          de: {
+            custom: {
+              shipping: { freeAbove: 'Kostenloser Versand ab {{ value }}', badge: 'Kostenloser Versand' },
+              cartBadge: { items_one: '{{ count }} Artikel', items_other: '{{ count }} Artikel' },
+            },
+          },
+        },
+        // tells which chunk holds each top-level key
+        chunks: { custom: ['shipping', 'cartBadge'] },
       },
     }),
   ],
