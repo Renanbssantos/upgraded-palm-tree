@@ -6,7 +6,6 @@ Plan: `docs/training-plan.md` → Phase 3, Step 1 · Previous: `phase2-step09` �
 
 ```bash
 cd mocks/occ-mock && npm start          # mock backend on http://localhost:9002 (or use your real backend)
-curl http://localhost:9002/occ/v2/basesites
 ```
 
 ## Files
@@ -16,6 +15,13 @@ curl http://localhost:9002/occ/v2/basesites
 | `occ-calls/commands.sh` | create: variables and the base sites call |
 
 Provided: `mocks/occ-mock/` (mock SAP Commerce backend, `npm test` in that folder runs its checks).
+
+## Check (after the changes)
+
+```bash
+curl http://localhost:9002/occ/v2/basesites
+bash occ-calls/commands.sh
+```
 
 ## Done when
 
