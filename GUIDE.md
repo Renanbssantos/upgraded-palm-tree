@@ -6,7 +6,7 @@ Plan: `docs/training-plan.md` → Phase 1, Step 5 · Previous: `phase1-step04` �
 
 ```bash
 cd catalog
-ng generate component product-list
+ng generate component product-list --inline-style
 ```
 
 ## Files
@@ -17,6 +17,12 @@ ng generate component product-list
 | `catalog/src/app/product-list/product-list.html` | search input, `@for` / `@empty`; exercise: stock badges with `@if` |
 | `catalog/src/app/app.ts` | import `ProductList` |
 | `catalog/src/app/app.html` | `<app-product-list />` |
+
+## Check (after the changes)
+
+```bash
+ng serve
+```
 
 ## Done when
 
