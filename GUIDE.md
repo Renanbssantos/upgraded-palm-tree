@@ -6,7 +6,7 @@ Plan: `docs/training-plan.md` → Phase 2, Step 3 · Previous: `phase2-step02` �
 
 ```bash
 cd catalog
-ng generate component qty-selector --skip-tests
+ng generate component qty-selector --inline-template --inline-style --skip-tests
 ```
 
 ## Files
@@ -16,6 +16,12 @@ ng generate component qty-selector --skip-tests
 | `catalog/src/app/qty-selector/qty-selector.ts` | `model`, `input`, `output`, `viewChild`; exercise: focus on limit |
 | `catalog/src/app/product-detail/product-detail.ts` | `quantity` and `limit` signals, import `QtySelector` |
 | `catalog/src/app/product-detail/product-detail.html` | `[(qty)]`, `(limitReached)` and the limit message |
+
+## Check (after the changes)
+
+```bash
+ng serve
+```
 
 ## Done when
 
