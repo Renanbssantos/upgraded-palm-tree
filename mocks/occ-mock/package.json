@@ -1,0 +1,12 @@
+{
+  "name": "occ-mock",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Mock SAP Commerce OCC + OAuth server for the training plan (no real backend needed)",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test"
+  },
+  "engines": { "node": ">=22" }
+}
