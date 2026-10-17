@@ -30,3 +30,12 @@ curl -sk -H "Authorization: Bearer $TOKEN" "$BASE/users/current" | json
 echo "no header     -> HTTP $(curl -sk -o /dev/null -w '%{http_code}' "$BASE/users/current")"
 echo "invalid token -> HTTP $(curl -sk -o /dev/null -w '%{http_code}' -H 'Authorization: Bearer nope' "$BASE/users/current")"
 
+step "Step 5: anonymous cart (create, add, view, change quantity, remove)"
+GUID=$(curl -sk -X POST "$BASE/users/anonymous/carts" | sed -E 's/.*"guid":"([^"]+)".*/\1/')
+echo "guid: $GUID"
+curl -sk -X POST "$BASE/users/anonymous/carts/$GUID/entries" -H "Content-Type: application/json" \
+  -d "{\"product\": {\"code\": \"$CODE\"}, \"quantity\": 1}" | json
+curl -sk "$BASE/users/anonymous/carts/$GUID?fields=FULL" | json
+curl -sk -X PATCH "$BASE/users/anonymous/carts/$GUID/entries/0" -H "Content-Type: application/json" -d '{"quantity": 3}' | json
+curl -sk -X DELETE "$BASE/users/anonymous/carts/$GUID/entries/0" -o /dev/null -w 'DELETE -> HTTP %{http_code}\n'
+
