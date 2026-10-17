@@ -8,7 +8,6 @@ Plan: `docs/training-plan.md` → Phase 4, Step 2 · Previous: `phase4-step01` �
 ng new mystore --style=scss --ssr=false --file-name-style-guide=2016
 cd mystore
 ng add @spartacus/schematics@221121.20.0 --baseUrl http://localhost:9002 --baseSite electronics-spa --currency usd --language en --ssr
-npm start                      # with the mock running: node mocks/occ-mock/server.mjs
 ```
 
 ## Files
@@ -20,6 +19,15 @@ npm start                      # with the mock running: node mocks/occ-mock/serv
 | `mystore/src/styles/spartacus/*.scss` | Windows only: `..\..\styles-config` → `../../styles-config` |
 
 Provided: Everything else in `mystore/` comes from `ng new` + `ng add`. The mock (`mocks/occ-mock`) gets what the storefront asks for.
+
+Note: ng add asks to confirm the installation: answer Y. The schematic also asks which features to install: accept the defaults.
+
+## Check (after the changes)
+
+```bash
+node mocks/occ-mock/server.mjs   # terminal 1, at the repository root
+cd mystore && npm start          # terminal 2
+```
 
 ## Done when
 
