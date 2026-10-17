@@ -6,7 +6,7 @@ Plan: `docs/training-plan.md` → Phase 4, Step 4 · Previous: `phase4-step03` �
 
 ```bash
 cd mystore
-ng generate component custom/cart-badge --skip-tests
+ng generate component custom/cart-badge --type= --inline-template --inline-style --skip-tests
 ```
 
 ## Files
@@ -18,6 +18,12 @@ ng generate component custom/cart-badge --skip-tests
 | `mystore/src/app/custom/cart-badge/cart-badge.ts` | `ActiveCartFacade` + `toSignal`; exercise: formatted total |
 | `mystore/src/app/app.component.ts` | import `CartBadge` |
 | `mystore/src/app/app.component.html` | temporary `<app-cart-badge />` above `<cx-storefront />` |
+
+## Check (after the changes)
+
+```bash
+npm start                      # add a product to the cart
+```
 
 ## Done when
 
