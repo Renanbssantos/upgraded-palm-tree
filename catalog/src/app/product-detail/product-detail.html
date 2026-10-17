@@ -10,3 +10,6 @@
     <button (click)="selectedImage.set(img)">View</button>
   }
 }
+<app-qty-selector [(qty)]="quantity" [max]="5" (limitReached)="limit.set($event)" />
+<p>Selected: {{ quantity() }}</p>
+@if (limit()) { <p>Limit of {{ limit() }} units</p> }
