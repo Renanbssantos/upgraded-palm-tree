@@ -23,3 +23,41 @@
 
 // ORDER IMPORTANT: Spartacus styles last
 @import '@spartacus/styles/index';
+
+// ---- Phase 4, Step 8: theme (after the storefront imports, so these values win) ----
+:root {
+  --cx-color-primary: #0a6ed1; // buttons, links and highlights
+  --cx-color-secondary: #354a5f;
+  // exercise: the default text color
+  --cx-color-text: #1d2d3e;
+}
+
+// the storefront has no font variable: set the font on body and every component inherits it
+body {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+// targeted tweaks for our own components (Steps 5 and 6)
+.shipping {
+  color: var(--cx-color-success); // reuses a palette color
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.badge-free-shipping {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  background: var(--cx-color-success);
+  color: var(--cx-color-inverse);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.cart-badge {
+  align-self: center;
+  color: var(--cx-color-text); // the MiniCart slot sets white text for the blue button
+  margin-inline-start: 0.5rem;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
