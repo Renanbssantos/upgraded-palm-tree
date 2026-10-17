@@ -16,6 +16,20 @@ Each branch builds on the previous one and holds the verified reference solution
 | `phase5` | `mystore/` with the final project (product comparison); spec, decisions and checks in [mystore/README.md](mystore/README.md) |
 | `phase5-step01` … `phase5-step10` | The final project step by step: each branch is the state at the end of that step and builds on the previous one (`phase5` = `phase5-step10`) |
 
+### One branch per step
+
+Every step of every phase has its own branch, `phaseN-stepNN`, with the state at the end of that step (exercise solution included). Each one builds on the previous step, and the first step of a phase builds on the last step of the previous phase, so `git diff phase2-step04 phase2-step05` shows exactly what Step 5 of Phase 2 adds.
+
+| Phase | Branches | Last step = |
+| --- | --- | --- |
+| 1 | `phase1-step01` … `phase1-step07` | `phase1` (same files) |
+| 2 | `phase2-step01` … `phase2-step09` | `phase2` |
+| 3 | `phase3-step01` … `phase3-step07` | `phase3` |
+| 4 | `phase4-step01` … `phase4-step12` | `phase4` |
+| 5 | `phase5-step01` … `phase5-step10` | `phase5` |
+
+Steps with nothing to commit are empty commits that say where the work happens: Phase 1 Steps 1–2 (machine setup, TypeScript Playground) and Phase 3 Step 2 (Backoffice, or the mock's admin endpoints). Verified on 2026-10-17: every step with Angular code builds (`ng build`); Phase 2 Step 9, Phase 4 Step 12 and Phase 5 Steps 7+ also pass `npm test`; every Phase 3 step runs its `occ-calls/commands.sh` end to end against the mock. In Phase 4, Steps 2–11 have no specs yet, so `ng test` reports "No tests found" there.
+
 ## Verified so far
 
 - `phase2`: `catalog/` installs, `npm test` passes (4 tests) and `npm run build` (SSR) succeeds. Needs npm 11 (`npm install -g npm@11`) and reaches the public dummyjson.com API.
