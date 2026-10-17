@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { translationChunksConfig, translationsEn } from '@spartacus/assets';
+import { translationChunksConfig, translationsDe, translationsEn } from '@spartacus/assets';
 import {
   FeaturesConfig,
   I18nConfig,
@@ -31,13 +31,15 @@ import {
     provideConfig(<SiteContextConfig>{
       context: {
         currency: ['USD'],
-        language: ['en'],
+        // Phase 4, Step 3: German is offered by the base site; the first entry is the default.
+        // Exercise solution: ['de', 'en'] makes German the default.
+        language: ['en', 'de'],
         baseSite: ['electronics-spa'],
       },
     }),
     provideConfig(<I18nConfig>{
       i18n: {
-        resources: { en: translationsEn },
+        resources: { en: translationsEn, de: translationsDe },
         chunks: translationChunksConfig,
         fallbackLang: 'en',
       },
