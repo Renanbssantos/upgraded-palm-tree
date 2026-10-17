@@ -2,18 +2,18 @@
 
 Plan: `docs/training-plan.md` → Phase 4, Step 7 · Previous: `phase4-step06` · Next: `phase4-step08`
 
-## Commands
-
-```bash
-cd mystore && npm start
-# DevTools → device toolbar: check phone, tablet and desktop
-```
-
 ## Files
 
 | File | Change |
 | --- | --- |
 | `mystore/src/app/custom/custom.module.ts` | `LayoutConfig` for `ProductDetailsPageTemplate`: default, `lg`, `xs` and `md` |
+
+## Check (after the changes)
+
+```bash
+cd mystore && npm start
+# DevTools → device toolbar: check phone, tablet and desktop
+```
 
 ## Done when
 
