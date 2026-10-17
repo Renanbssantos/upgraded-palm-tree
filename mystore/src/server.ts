@@ -11,7 +11,13 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import bootstrap from './main.server';
 
-const ngExpressEngine = NgExpressEngineDecorator.get(engine);
+// Phase 4, Step 11: the "kitchen manager". After `timeout` ms without finishing,
+// the request is answered with CSR and the server render completes in the background.
+// Run locally with NG_ALLOWED_HOSTS=localhost, or Angular falls back to CSR on every request.
+const ngExpressEngine = NgExpressEngineDecorator.get(engine, {
+  timeout: 3000,
+  cache: false, // in production, caching usually lives in a layer in front (CDN)
+});
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
