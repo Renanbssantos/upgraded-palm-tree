@@ -35,6 +35,10 @@ import {
         // Exercise solution: ['de', 'en'] makes German the default.
         language: ['en', 'de'],
         baseSite: ['electronics-spa'],
+        // Phase 5, Step 8 (SSR check): with SSR, a language switch reloads the page
+        // (feature toggle reloadOnLanguageChange) and the server only knows the language
+        // if it is in the URL: /electronics-spa/de/USD/...
+        urlParameters: ['baseSite', 'language', 'currency'],
       },
     }),
     provideConfig(<I18nConfig>{
