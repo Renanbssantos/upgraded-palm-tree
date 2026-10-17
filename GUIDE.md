@@ -6,7 +6,7 @@ Plan: `docs/training-plan.md` → Phase 1, Step 7 · Previous: `phase1-step06` �
 
 ```bash
 cd catalog
-ng generate component product-detail
+ng generate component product-detail --inline-template --inline-style
 ```
 
 ## Files
@@ -20,6 +20,12 @@ ng generate component product-detail
 | `catalog/src/app/product-list/product-list.ts` | import `RouterLink` |
 | `catalog/src/app/app.html` | `<router-outlet />` |
 | `catalog/src/app/app.ts` | import `RouterOutlet` |
+
+## Check (after the changes)
+
+```bash
+ng serve                       # open /product/1
+```
 
 ## Done when
 
