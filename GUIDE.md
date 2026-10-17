@@ -15,6 +15,12 @@ ng generate service custom/product-comparison/product-comparison --type=service 
 | --- | --- |
 | `mystore/src/app/custom/product-comparison/product-comparison.service.ts` | `codes`, `count`, `isFull`, `toggle`, `localStorage` via `effect`; stretch: `clear()`, `lastAdded` |
 
+## Check (after the changes)
+
+```bash
+npm start                      # DevTools → Application → Local Storage → compare (after Step 4)
+```
+
 ## Done when
 
 The list survives a reload (DevTools → Local Storage → `compare`).
