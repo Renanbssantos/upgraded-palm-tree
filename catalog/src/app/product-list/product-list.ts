@@ -1,5 +1,8 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import { ProductCard } from '../product-card/product-card';
+import { ProductService } from '../product.service';
 
 @Component({
   selector: 'app-product-list',
@@ -7,12 +10,8 @@ import { ProductCard } from '../product-card/product-card';
   templateUrl: './product-list.html',
 })
 export class ProductList {
-  // test data until Step 6 brings real products from the API
-  products = signal([
-    { id: 1, title: 'Phone', price: 300, stock: 3 },
-    { id: 2, title: 'Laptop', price: 1500, stock: 0 },
-    { id: 3, title: 'Tablet', price: 500, stock: 12 },
-  ]);
+  private service = inject(ProductService);
+  products = toSignal(this.service.list().pipe(map((r) => r.products)), { initialValue: [] });
   term = signal('');
   filtered = computed(() =>
     this.products().filter((p) => p.title.toLowerCase().includes(this.term().toLowerCase())),
