@@ -28,14 +28,14 @@ Name, formatted price, average rating and the technical attributes from the prod
 
 The acceptance criteria at the end of Phase 5 in the training plan:
 
-- [ ] README with specification, decisions and how to run it
-- [ ] Component mapped through the CMS (`flexType`) and `/compare` page coming from the CMS
-- [ ] Button and badge added through outlets, without changing storefront templates
-- [ ] Data obtained only through facades (no `HttpClient` directly in components)
-- [ ] State in signals, persisted in the browser without breaking SSR
-- [ ] Texts through i18n in at least 2 languages
-- [ ] Service, button and page tests passing
-- [ ] Version upgrade done and documented (see "Checks")
+- [x] README with specification, decisions and how to run it
+- [x] Component mapped through the CMS (`flexType`) and `/compare` page coming from the CMS
+- [x] Button and badge added through outlets, without changing storefront templates
+- [x] Data obtained only through facades (no `HttpClient` directly in components)
+- [x] State in signals, persisted in the browser without breaking SSR
+- [x] Texts through i18n in at least 2 languages
+- [x] Service, button and page tests passing
+- [ ] Version upgrade done and documented (procedure documented; no newer release yet, see "Upgrade")
 - [ ] Demo video (each person records their own)
 
 ## Technical decisions
@@ -72,6 +72,17 @@ SSR: `npm run build`, then `NG_ALLOWED_HOSTS=localhost npm run serve:ssr:mystore
 | 2026-10-17 | Keyboard | Tab reaches "Compare" right after "Add to cart", with a visible outline; Enter toggles it and focus stays on the button; the header badge is a link reached by Tab |
 | 2026-10-17 | Screen reader cues | Disabled button points to the reason with `aria-describedby`; the badge sits in an `aria-live="polite"` region; the table has a caption and `scope` on every header |
 | 2026-10-17 | Lighthouse | Not run in this environment; run it in Chrome DevTools on the PDP before and after the button |
+
+## Delivery (Step 10)
+
+Video of up to 5 minutes, suggested script:
+
+1. (1 min) PDP: "Compare" on three products, the badge counting up; a 5th product shows the disabled button and the reason.
+2. (1 min) `/compare`: aligned attributes with "—" for gaps, remove one product, switch to German.
+3. (1.5 min) Decision 1: signals in a root service instead of NgRx (show `product-comparison.service.ts`).
+4. (1.5 min) Decision 2: `combineLatest` instead of `forkJoin`, because facades never complete (show `product-comparison.ts`).
+
+Then push the branch (`git push -u origin <branch>`) and share the link with the video.
 
 ## Upgrade (Step 9)
 

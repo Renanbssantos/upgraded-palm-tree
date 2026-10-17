@@ -13,12 +13,15 @@ Each branch builds on the previous one and holds the verified reference solution
 | `phase2` | `catalog/` after Phase 2 (signals, RxJS, NgRx, SSR, tests) |
 | `phase3` | `mocks/occ-mock/` (mock SAP Commerce backend) and `occ-calls/commands.sh` (the Phase 3 API calls) |
 | `phase4` | `mystore/`: Composable Storefront 221121.20.0 generated with `ng add @spartacus/schematics`, running against the mock, with the solution of every Phase 4 step (see below) |
+| `phase5` | `mystore/` with the final project (product comparison); spec, decisions and checks in [mystore/README.md](mystore/README.md) |
+| `phase5-step01` … `phase5-step10` | The final project step by step: each branch is the state at the end of that step and builds on the previous one (`phase5` = `phase5-step10`) |
 
 ## Verified so far
 
 - `phase2`: `catalog/` installs, `npm test` passes (4 tests) and `npm run build` (SSR) succeeds. Needs npm 11 (`npm install -g npm@11`) and reaches the public dummyjson.com API.
 - `phase3`: `cd mocks/occ-mock && npm test` passes, and `bash occ-calls/commands.sh` runs end to end against the mock.
 - `phase4`: `mystore/` builds and `npm test` passes (6 tests). Home, product page, search, not-found page and the anonymous cart work in the browser against the mock with no console errors, and every Phase 4 exercise was checked in the browser: custom summary with badge and warranty, outlets, slot order on desktop / tablet / phone, theme variables, English and German texts, SSR HTML with the custom summary, and adding to the cart with the keyboard only. The mock has 16 tests. Lighthouse was not run (do it in Chrome DevTools, Step 12).
+- `phase5`: `npm test` passes (18 tests) and the mock has 17. Checked in the browser, also on the production SSR build: Compare button and its limit, badge on every page, `/compare` from the CMS with aligned attributes, English and German, no hydration errors, keyboard only. The upgrade step could not be done: no release newer than 221121.20.0 exists yet.
 
 ## Phase 4 reference solution (`mystore/`)
 
@@ -65,3 +68,13 @@ SSR: `npm run build`, then `NG_ALLOWED_HOSTS=localhost npm run serve:ssr:mystore
 | Phase 4, Step 11 | The storefront's SSR server also needs allowed hosts; `SSR_ALLOWED_ORIGINS` in `server.ts` is a different, optional check | Run with `NG_ALLOWED_HOSTS=localhost` |
 | Phase 3, Step 7 | The storefront sends `x-anonymous-consents`; the backend must allow it in CORS | Add it to `corsfilter.commercewebservices.allowedHeaders` (and `exposedHeaders`) |
 | Phase 3, Step 6 | The 221121 storefront reads CMS pages from `users/{userId}/cms/pages` | Mention both paths; the plain `cms/pages` still works for curl |
+
+## Phase 5 findings (not yet applied to the plan)
+
+| Where | Problem | Fix |
+| --- | --- | --- |
+| Phase 5, Step 4 | The outlet snippet still uses `cxOutletPos="after"`, which does not compile with strict templates | `[cxOutletPos]="OutletPosition.AFTER"`, as already fixed in Phase 4, Step 6 |
+| Phase 4, Step 3 and Phase 5, Steps 5 and 8 | With SSR, switching language reloads the page (feature toggle `reloadOnLanguageChange`) and, without the context in the URL, the server renders the default language again: German is lost on the production build. The `/electronics-spa/en/USD/compare` URL in Step 5 also only exists with `urlParameters` | Recommend `urlParameters: ['baseSite', 'language', 'currency']` in Phase 4, Step 3 (not just "if you want to see it in the URL") |
+| Phase 5, Step 6 | The `SiteLinks` outlet only renders if the CMS page has a `SiteLinks` slot (the electronics-spa sample data has it); without it the badge silently does not appear | Mention it; inspect the header slots and pick one that exists in your content |
+| Phase 5, Step 7 | Testing that the effect saved the list needs `TestBed.tick()` before reading `localStorage` | Add it to the example |
+| Phase 5, Step 3 | Checked: reading `localStorage` while building the service causes no hydration error (the server renders the empty list and the browser fills it in) | No change needed |
