@@ -6,7 +6,7 @@ Plan: `docs/training-plan.md` → Phase 4, Step 5 · Previous: `phase4-step04` �
 
 ```bash
 cd mystore
-ng generate component custom/custom-product-summary --skip-tests
+ng generate component custom/custom-product-summary --type= --inline-template --inline-style --skip-tests
 ```
 
 ## Files
@@ -15,6 +15,12 @@ ng generate component custom/custom-product-summary --skip-tests
 | --- | --- |
 | `mystore/src/app/custom/custom-product-summary/custom-product-summary.ts` | `CurrentProductService`; exercise: "Free shipping" above 200 |
 | `mystore/src/app/custom/custom.module.ts` | `CmsConfig`: `ProductSummaryComponent` → `CustomProductSummary` |
+
+## Check (after the changes)
+
+```bash
+npm start                      # open a product page
+```
 
 ## Done when
 
