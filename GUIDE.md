@@ -6,7 +6,6 @@ Plan: `docs/training-plan.md` → Phase 2, Step 9 · Previous: `phase2-step08` �
 
 ```bash
 cd catalog
-ng test --watch=false
 ```
 
 ## Files
@@ -17,6 +16,12 @@ ng test --watch=false
 | `catalog/src/app/qty-selector/qty-selector.spec.ts` | create: stops at `max` |
 | `catalog/src/app/product.service.spec.ts` | `HttpTestingController` instead of "should be created" |
 | `catalog/src/app/*.spec.ts (generated)` | delete `app.spec.ts`, `product-card`, `product-list`, `product-detail` specs |
+
+## Check (after the changes)
+
+```bash
+ng test --watch=false
+```
 
 ## Done when
 
