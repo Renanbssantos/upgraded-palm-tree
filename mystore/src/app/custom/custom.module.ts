@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CmsConfig, I18nConfig, OccConfig, PRODUCT_NORMALIZER, provideConfig } from '@spartacus/core';
 import { LayoutConfig } from '@spartacus/storefront';
 import { CustomProductSummary } from './custom-product-summary/custom-product-summary';
+import { ProductComparison } from './product-comparison/product-comparison';
 import { WarrantyNormalizer } from './warranty.normalizer';
 
 // Every storefront customization of Phase 4 lives here (imported by AppModule).
@@ -11,6 +12,8 @@ import { WarrantyNormalizer } from './warranty.normalizer';
     provideConfig(<CmsConfig>{
       cmsComponents: {
         ProductSummaryComponent: { component: CustomProductSummary },
+        // Phase 5, Step 5: links the CMSFlexComponent's flexType to the comparison page
+        ProductComparisonComponent: { component: ProductComparison },
       },
     }),
 
@@ -50,6 +53,13 @@ import { WarrantyNormalizer } from './warranty.normalizer';
                 limit: 'Limit of {{ max }} products: remove one to add this product.',
                 empty: 'No products to compare yet. Use the "Compare" button on a product page.',
                 badge: 'Compare ({{ count }})',
+                title: 'Product comparison',
+                product: 'Product',
+                price: 'Price',
+                rating: 'Rating',
+                removeShort: 'Remove',
+                removeProduct: 'Remove {{ name }} from comparison',
+                clear: 'Clear comparison',
               },
             },
           },
@@ -66,6 +76,13 @@ import { WarrantyNormalizer } from './warranty.normalizer';
                 limit: 'Maximal {{ max }} Produkte: Entfernen Sie eines, um dieses hinzuzufügen.',
                 empty: 'Noch keine Produkte zum Vergleichen. Nutzen Sie „Vergleichen“ auf einer Produktseite.',
                 badge: 'Vergleich ({{ count }})',
+                title: 'Produktvergleich',
+                product: 'Produkt',
+                price: 'Preis',
+                rating: 'Bewertung',
+                removeShort: 'Entfernen',
+                removeProduct: '{{ name }} aus dem Vergleich entfernen',
+                clear: 'Vergleich leeren',
               },
             },
           },
