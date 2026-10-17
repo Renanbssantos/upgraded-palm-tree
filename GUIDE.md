@@ -6,9 +6,8 @@ Plan: `docs/training-plan.md` → Phase 2, Step 6 · Previous: `phase2-step05` �
 
 ```bash
 cd catalog
-ng generate component product-reviews --skip-tests
-ng generate component experiment --skip-tests
-ng serve --no-hmr               # without HMR, so @defer creates its own chunk
+ng generate component product-reviews --inline-template --inline-style --skip-tests
+ng generate component experiment --inline-template --inline-style --skip-tests
 ```
 
 ## Files
@@ -20,6 +19,12 @@ ng serve --no-hmr               # without HMR, so @defer creates its own chunk
 | `catalog/src/app/product-reviews/product-reviews.ts` | minimal component with a `productId` input |
 | `catalog/src/app/experiment/experiment.ts` | plain counter vs signal counter |
 | `catalog/src/app/app.routes.ts` | route `experiment` |
+
+## Check (after the changes)
+
+```bash
+ng serve --no-hmr               # without HMR, so @defer creates its own chunk
+```
 
 ## Done when
 
