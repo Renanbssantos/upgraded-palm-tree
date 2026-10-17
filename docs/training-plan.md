@@ -784,7 +784,7 @@ Install the Redux DevTools browser extension and register `provideStoreDevtools(
 
 **How to run it.**
 
-1. Install NgRx: `ng add @ngrx/store` and `npm install @ngrx/store-devtools`.
+1. Install NgRx: `ng add @ngrx/store` and `npm install @ngrx/store-devtools@21` (without `@21` npm takes the latest major, which needs a newer Angular).
 2. Create a `src/app/state/` folder with `cart.actions.ts`, `cart.reducer.ts` and `cart.selectors.ts`, and paste each part of the snippet into its file. Define the state shape at the top of the reducer: `export interface CartState { items: { code: string; price: number; qty: number }[] }` and `const initialState: CartState = { items: [] };`.
 3. In `app.config.ts`, `ng add` already inserted an empty `provideStore()`: replace it with `provideStore({ cart: cartReducer })` (don't add a second one), and add `provideStoreDevtools()`.
 4. Change the `Cart` component from Step 1 to use `store.dispatch` and `selectSignal`. Install the **Redux DevTools** Chrome extension, open DevTools → Redux tab, click Add and watch each action.
@@ -1532,7 +1532,7 @@ Put the badge on screen with an outlet (Step 6) or inside a component you have a
 **How to run it.**
 
 1. Create the custom module from "How to run the exercises" (`src/app/custom/custom.module.ts`) if you haven't yet, and import it in `app.module.ts`.
-2. Generate the badge: `ng generate component custom/cart-badge` and paste the snippet into `cart-badge.ts`.
+2. Generate the badge: `ng generate component custom/cart-badge --type= --inline-template --inline-style --skip-tests` and paste the snippet into `cart-badge.ts`. The project uses the 2016 file names, so without `--type=` the file would be `cart-badge.component.ts`.
 3. Show it temporarily at the top of `app.component.html`: `<app-cart-badge />` (Step 6 moves it to the right place). The generated root component (`App` in `app.component.ts`) is standalone even though the storefront itself is configured through `app.module.ts`, so add `CartBadge` to the `imports` of `App`.
 4. Add a product to the cart in the storefront and watch the badge number change.
 
@@ -1596,7 +1596,7 @@ export class CustomBanner {
 
 **How to run it.**
 
-1. Run `ng generate component custom/custom-product-summary` and paste the component part of the snippet into its `.ts` file.
+1. Run `ng generate component custom/custom-product-summary --type= --inline-template --inline-style --skip-tests` and paste the component part of the snippet into its `.ts` file.
 2. Paste the `provideConfig(<CmsConfig>{...})` part into the `providers` of `CustomModule`.
 3. Open any product page in the storefront (click a product on the home page).
 4. Right-click your summary → Inspect: the element should be `app-custom-product-summary` instead of the storefront's original.
@@ -2147,7 +2147,7 @@ export class CompareButton {
 
 **How to run it.**
 
-1. Run `ng generate component custom/compare-button` and paste the component snippet.
+1. Run `ng generate component custom/compare-button --type= --inline-template --inline-style --skip-tests` and paste the component snippet.
 2. Paste the `ng-template` into `app.component.html`, below `<cx-storefront>` (same place as Phase 4, Step 6).
 3. Register the `compare.add`, `compare.remove`, `compare.empty` and `compare.badge` keys in your i18n config (Phase 4, Step 9), in a `compare` chunk.
 4. Open a product page, click the button and check Local Storage: the product code appears in the `compare` key.
@@ -2214,7 +2214,7 @@ provideConfig(<CmsConfig>{
 
 **How to run it.**
 
-1. Run `ng generate component custom/product-comparison` and paste the component snippet.
+1. Run `ng generate component custom/product-comparison --type= --inline-template --inline-style --skip-tests` and paste the component snippet.
 2. Paste the `provideConfig(<CmsConfig>{...})` into `CustomModule`'s `providers`.
 3. Add 2 or 3 products with the button from Step 4, then open `http://localhost:4200/electronics-spa/en/USD/compare` (adjust to your base site, language and currency).
 4. Blank page? Check, in order: the `cms/pages` call for `/compare` (Step 2), the `flexType` spelling in the mapping, and the browser console.
@@ -2254,7 +2254,7 @@ Plug the badge in with an outlet on a header slot, for example `<ng-template cxO
 
 **How to run it.**
 
-1. Run `ng generate component custom/compare-badge` and paste the snippet.
+1. Run `ng generate component custom/compare-badge --type= --inline-template --inline-style --skip-tests` and paste the snippet.
 2. Inspect the header in the browser to choose a slot, then add a second `ng-template` in `app.component.html` using that slot name.
 3. Add a product to the comparison and navigate to the home page: the badge should already show the count.
 
